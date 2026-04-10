@@ -142,7 +142,7 @@ const TOOLS: ToolDefinition[] = [
   {
     id: 'policy-review',
     title: 'Policy Review',
-    subtitle: 'Upload a policy for AI compliance analysis',
+    subtitle: 'AI compliance review for any sector',
     category: 'compliance',
     icon: 'document',
   },
@@ -1486,7 +1486,7 @@ function PhasedReturnCalculator() {
 
 function PolicyReviewTool() {
   const [file, setFile] = useState<File | null>(null);
-  const [orgType, setOrgType] = useState('supported-living');
+  const [orgType, setOrgType] = useState('sme-general');
   const [staffCount, setStaffCount] = useState('');
   const [concerns, setConcerns] = useState('');
   const [agreedWays, setAgreedWays] = useState('');
@@ -1693,13 +1693,43 @@ function PolicyReviewTool() {
                     value={orgType}
                     onChange={(e) => setOrgType(e.target.value)}
                   >
-                    <option value="care-home">Care home (residential)</option>
-                    <option value="domiciliary">Domiciliary care</option>
-                    <option value="supported-living">Supported living</option>
-                    <option value="day-services">Day services</option>
-                    <option value="nursing-home">Nursing home</option>
-                    <option value="other-care">Other care provider</option>
-                    <option value="non-care-sme">Non-care SME</option>
+                    <optgroup label="General">
+                      <option value="sme-general">SME (general)</option>
+                      <option value="startup">Startup / early stage</option>
+                      <option value="charity">Charity / not-for-profit</option>
+                    </optgroup>
+                    <optgroup label="Care and support">
+                      <option value="care-home">Care home (residential)</option>
+                      <option value="domiciliary">Domiciliary care</option>
+                      <option value="supported-living">Supported living</option>
+                      <option value="day-services">Day services</option>
+                      <option value="nursing-home">Nursing home</option>
+                    </optgroup>
+                    <optgroup label="Hospitality and retail">
+                      <option value="hospitality">Hospitality / restaurant / hotel</option>
+                      <option value="retail">Retail</option>
+                      <option value="leisure">Leisure / gym / events</option>
+                    </optgroup>
+                    <optgroup label="Construction and trades">
+                      <option value="construction">Construction / building</option>
+                      <option value="trades">Trades / plumbing / electrical</option>
+                      <option value="manufacturing">Manufacturing / warehouse</option>
+                    </optgroup>
+                    <optgroup label="Professional services">
+                      <option value="office">Office / professional services</option>
+                      <option value="tech">Technology / software</option>
+                      <option value="finance">Finance / accounting</option>
+                      <option value="legal">Legal</option>
+                    </optgroup>
+                    <optgroup label="Education and childcare">
+                      <option value="education">Education / school / college</option>
+                      <option value="childcare">Childcare / nursery</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="transport">Transport / logistics</option>
+                      <option value="agriculture">Agriculture / farming</option>
+                      <option value="other">Other</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div className="tool-calc__field">
