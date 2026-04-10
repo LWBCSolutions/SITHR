@@ -4114,6 +4114,531 @@ svg {
   background: #8B2424;
 }
 
+/* === 38. HR Tools Page === */
+.tools-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.tools-page__title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.tools-page__subtitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tools-page__divider {
+  height: 2px;
+  background: var(--blue-accent);
+  margin: 20px 0;
+  width: 40px;
+}
+
+.tools-page__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Tool Card */
+.tool-card {
+  border: 1px solid var(--mid-grey-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.tool-card:hover {
+  border-color: var(--blue-accent);
+}
+
+.tool-card--open {
+  border-color: var(--blue-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.tool-card__header {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--white);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.tool-card__header:hover {
+  background: #FAFAFA;
+}
+
+.tool-card__header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.tool-card__category {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-bottom: 6px;
+}
+
+.tool-card__category--absence { background: #E6F1FB; color: #185FA5; }
+.tool-card__category--leave { background: #EAF3DE; color: #3B6D11; }
+.tool-card__category--general { background: #F5F5F5; color: #666; }
+
+.tool-card__title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.tool-card__desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.tool-card__chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 4px;
+  transition: transform 0.2s;
+}
+
+.tool-card__chevron--open {
+  transform: rotate(180deg);
+}
+
+.tool-card__body {
+  border-top: 1px solid var(--mid-grey-border);
+  padding: 20px;
+  background: var(--light-grey-bg);
+}
+
+/* Calculator Internals */
+.tool-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tool-calc__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tool-calc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tool-calc__field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tool-calc__label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.tool-calc__label--checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.tool-calc__label--checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue-accent);
+  cursor: pointer;
+}
+
+.tool-calc__input {
+  padding: 10px 12px;
+  border: 1px solid var(--mid-grey-border);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.tool-calc__input:focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 3px rgba(45, 125, 210, 0.1);
+}
+
+.tool-calc__select {
+  padding: 10px 12px;
+  border: 1px solid var(--mid-grey-border);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--white);
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.tool-calc__select:focus {
+  border-color: var(--blue-accent);
+}
+
+.tool-calc__help {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.tool-calc__btn {
+  padding: 10px 20px;
+  background: var(--blue-accent);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-self: flex-start;
+  min-height: 44px;
+  min-width: 120px;
+}
+
+.tool-calc__btn:hover:not(:disabled) {
+  background: var(--blue-hover);
+}
+
+.tool-calc__btn:disabled {
+  background: var(--mid-grey-border);
+  color: var(--text-placeholder);
+  cursor: not-allowed;
+}
+
+/* Results */
+.tool-calc__result {
+  border: 1px solid var(--mid-grey-border);
+  border-radius: 8px;
+  background: var(--white);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tool-calc__result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.tool-calc__result-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.tool-calc__result-value {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tool-calc__result-value--highlight {
+  font-size: 18px;
+  color: var(--blue-accent);
+}
+
+.tool-calc__formula {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--light-grey-bg);
+  padding: 10px 14px;
+  border-radius: 6px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* Bradford Score */
+.tool-calc__score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--mid-grey-border);
+}
+
+.tool-calc__score-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.tool-calc__score-value {
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.tool-calc__score-value--green { color: #3B6D11; }
+.tool-calc__score-value--amber { color: #854F0B; }
+.tool-calc__score-value--red { color: #A32D2D; }
+
+.tool-calc__band {
+  padding: 10px 14px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tool-calc__band--green { background: #EAF3DE; border-left: 3px solid #3B6D11; }
+.tool-calc__band--amber { background: #FAEEDA; border-left: 3px solid #854F0B; }
+.tool-calc__band--red { background: #FCEBEB; border-left: 3px solid #A32D2D; }
+
+.tool-calc__band-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tool-calc__band-action {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Bradford Reference Grid */
+.tool-calc__reference {
+  border-top: 1px solid var(--mid-grey-border);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.tool-calc__ref-title {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 0 0 8px;
+}
+
+.tool-calc__ref-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+  align-items: center;
+}
+
+.tool-calc__ref-score {
+  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.tool-calc__ref-score--green { background: #EAF3DE; color: #3B6D11; }
+.tool-calc__ref-score--amber { background: #FAEEDA; color: #854F0B; }
+.tool-calc__ref-score--red { background: #FCEBEB; color: #A32D2D; }
+
+/* Disclaimer */
+.tool-calc__disclaimer {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--mid-grey-border);
+}
+
+/* Toggle + Breakdown */
+.tool-calc__toggle-btn {
+  background: none;
+  border: none;
+  color: var(--blue-accent);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  align-self: flex-start;
+}
+
+.tool-calc__toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.tool-calc__breakdown {
+  background: var(--light-grey-bg);
+  padding: 12px 14px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tool-calc__breakdown-row {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Rates Notice */
+.tools-page__rates-notice {
+  margin-top: 32px;
+  padding: 16px 20px;
+  background: var(--light-grey-bg);
+  border-radius: 8px;
+  border-left: 3px solid var(--blue-accent);
+}
+
+.tools-page__rates-notice p {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tools-page__rates-notice strong {
+  color: var(--text-primary);
+}
+
+/* === 38b. HR Tools - Mobile Responsive === */
+@media (max-width: 768px) {
+  .tools-page {
+    padding: 24px 16px;
+  }
+
+  .tools-page__title {
+    font-size: 24px;
+  }
+
+  .tool-card__header {
+    padding: 14px 16px;
+  }
+
+  .tool-card__body {
+    padding: 16px;
+  }
+
+  .tool-calc__field-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .tool-calc__btn {
+    width: 100%;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .tool-calc__result-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .tool-calc__score {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .tool-calc__score-value {
+    font-size: 32px;
+  }
+
+  .tool-calc__formula {
+    font-size: 11px;
+    overflow-x: auto;
+  }
+
+  .tool-calc__ref-grid {
+    gap: 6px 10px;
+  }
+
+  .tool-calc__breakdown {
+    overflow-x: auto;
+  }
+
+  .tool-calc__breakdown-row {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .tools-page__title {
+    font-size: 22px;
+  }
+
+  .tool-card__title {
+    font-size: 14px;
+  }
+
+  .tool-card__desc {
+    font-size: 12px;
+  }
+
+  .tool-calc__input,
+  .tool-calc__select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    padding: 12px;
+    min-height: 48px;
+  }
+}
+
 /* === 37. Print Styles === */
 @media print {
   .sidebar,
@@ -4152,6 +4677,14 @@ svg {
   body {
     background: var(--white);
   }
+
+  .tool-card__chevron,
+  .tool-calc__btn {
+    display: none;
+  }
+  .tool-card__body {
+    display: block !important;
+  }
 }
 
 /* ============================================================
@@ -4174,7 +4707,7 @@ svg {
   gap: 10px;
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--mid-grey-border, #E0E0E0);
 }
 .admin-btn--publish {
   background: #1B6B2A !important;
@@ -4201,8 +4734,8 @@ svg {
 .admin-draft-content {
   margin-top: 14px;
   padding: 16px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--light-grey-bg, #F5F5F5);
+  border: 1px solid var(--mid-grey-border, #E0E0E0);
   border-radius: 8px;
   max-height: 500px;
   overflow-y: auto;
@@ -4211,7 +4744,7 @@ svg {
   white-space: pre-wrap;
   font-size: 13px;
   line-height: 1.7;
-  color: rgba(255,255,255,0.75);
+  color: var(--text-primary, #1C1C1E);
   font-family: 'DM Sans', sans-serif;
 }
 
@@ -4264,8 +4797,8 @@ svg {
 .admin-add-source {
   margin-top: 32px;
   padding: 24px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--light-grey-bg, #F5F5F5);
+  border: 1px solid var(--mid-grey-border, #E0E0E0);
   border-radius: 12px;
 }
 .admin-add-source__form {
@@ -4296,10 +4829,10 @@ svg {
   border-radius: 8px;
   font-size: 13px;
   line-height: 1.6;
-  color: rgba(255,255,255,0.6);
+  color: var(--text-secondary, #666);
 }
 .admin-schedule-note strong {
-  color: rgba(255,255,255,0.85);
+  color: var(--text-primary, #1C1C1E);
 }
 
 .admin-actions {
