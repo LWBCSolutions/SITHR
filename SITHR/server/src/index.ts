@@ -19,6 +19,7 @@ import mammoth from 'mammoth';
 import stripeRouter from './stripe';
 import { PLAN_LIMITS, type PlanName } from './planLimits';
 import { documentLibrary } from './documentLibrary';
+import { rssService } from './rssService';
 
 // ---------------------------------------------------------------------------
 // Load and combine system prompt at startup
@@ -1118,6 +1119,136 @@ app.get('/api/notifications', async (req: Request, res: Response) => {
 });
 
 // ---------------------------------------------------------------------------
+// Outbound RSS feed
+// ---------------------------------------------------------------------------
+app.get('/rss.xml', async (_req: Request, res: Response) => {
+  try {
+    const xml = await rssService.generateOutboundFeed();
+    res.set('Content-Type', 'application/rss+xml; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    console.error('RSS feed generation error:', err);
+    res.status(500).send('Error generating RSS feed');
+  }
+});
+
+app.get('/feed', async (_req: Request, res: Response) => {
+  try {
+    const xml = await rssService.generateOutboundFeed();
+    res.set('Content-Type', 'application/rss+xml; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    console.error('RSS feed generation error:', err);
+    res.status(500).send('Error generating RSS feed');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Admin API routes for RSS draft management
+// ---------------------------------------------------------------------------
+app.get('/api/admin/drafts', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const status = (req.query.status as string) || 'draft';
+    const limit = parseInt(req.query.limit as string) || 20;
+    const drafts = await rssService.listDrafts(status, limit);
+    res.json({ drafts });
+  } catch (err) {
+    console.error('List drafts error:', err);
+    res.status(500).json({ error: 'Failed to fetch drafts' });
+  }
+});
+
+app.post('/api/admin/drafts/:id/publish', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const draftId = String(req.params.id);
+    const reviewerId = String((req as any).user?.id || '');
+    const success = await rssService.publishDraft(draftId, reviewerId || undefined);
+    if (success) {
+      res.json({ success: true, message: 'Draft published successfully' });
+    } else {
+      res.status(404).json({ error: 'Draft not found or could not be published' });
+    }
+  } catch (err) {
+    console.error('Publish draft error:', err);
+    res.status(500).json({ error: 'Failed to publish draft' });
+  }
+});
+
+app.post('/api/admin/drafts/:id/reject', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const draftId = String(req.params.id);
+    const reviewerId = String((req as any).user?.id || '');
+    const success = await rssService.rejectDraft(draftId, reviewerId || undefined);
+    if (success) {
+      res.json({ success: true, message: 'Draft rejected' });
+    } else {
+      res.status(404).json({ error: 'Draft not found' });
+    }
+  } catch (err) {
+    console.error('Reject draft error:', err);
+    res.status(500).json({ error: 'Failed to reject draft' });
+  }
+});
+
+app.post('/api/admin/rss/run', requireAuth, async (_req: Request, res: Response) => {
+  try {
+    await rssService.dailyRun();
+    res.json({ success: true, message: 'RSS ingestion completed' });
+  } catch (err) {
+    console.error('Manual RSS run error:', err);
+    res.status(500).json({ error: 'RSS ingestion failed' });
+  }
+});
+
+app.get('/api/admin/rss/sources', requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+    const client = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await client
+      .from('rss_sources')
+      .select('*')
+      .order('name');
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+    res.json({ sources: data || [] });
+  } catch (err) {
+    console.error('List RSS sources error:', err);
+    res.status(500).json({ error: 'Failed to fetch sources' });
+  }
+});
+
+app.post('/api/admin/rss/sources', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { name, url, category, active } = req.body;
+    if (!name || !url) {
+      res.status(400).json({ error: 'Name and URL are required' });
+      return;
+    }
+    const supabaseUrl = process.env.SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+    const client = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await client
+      .from('rss_sources')
+      .insert({ name, url, category: category || 'guidance', active: active !== false })
+      .select()
+      .single();
+    if (error) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    res.json({ source: data });
+  } catch (err) {
+    console.error('Add RSS source error:', err);
+    res.status(500).json({ error: 'Failed to add source' });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Catch-all: serve SPA index.html for non-API GET requests
 // ---------------------------------------------------------------------------
 app.get('*', (_req: Request, res: Response) => {
@@ -1184,6 +1315,27 @@ async function sendWeeklyReport() {
 
 // Every Monday at 08:00 UK time
 cron.schedule('0 8 * * 1', sendWeeklyReport, { timezone: 'Europe/London' });
+
+// Daily RSS ingestion and article draft generation at 06:00 UK time
+cron.schedule('0 6 * * *', async () => {
+  console.log('[CRON] Starting daily RSS ingestion...');
+  try {
+    await rssService.dailyRun();
+  } catch (err) {
+    console.error('[CRON] RSS daily run error:', err);
+  }
+}, { timezone: 'Europe/London' });
+
+// Afternoon catch-up at 14:00 UK time
+cron.schedule('0 14 * * *', async () => {
+  console.log('[CRON] Starting afternoon RSS ingestion...');
+  try {
+    await rssService.ingestFeeds();
+    await rssService.generateDrafts(5);
+  } catch (err) {
+    console.error('[CRON] RSS afternoon run error:', err);
+  }
+}, { timezone: 'Europe/London' });
 
 // ---------------------------------------------------------------------------
 // Start server

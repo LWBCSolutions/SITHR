@@ -17,11 +17,13 @@ export const documentLibrary: DocumentTemplate[] = [
     tier: 1,
     description: 'Structured record of the return to work conversation following any absence. Required before Bradford Factor can be operated.',
     triggers: ['return to work', 'returning from absence', 'back to work', 'first day back'],
-    reviewNotice: 'This document should be reviewed before use to ensure it reflects your organisation specific policies and circumstances.',
+    reviewNotice: 'Review before use to ensure it reflects your organisation specific procedures. Updated April 2026: SSP is now payable from day one of absence.',
     content: `RETURN TO WORK INTERVIEW RECORD
 
 Organisation: [INSERT: Organisation name]
 Case Reference: [INSERT: Case reference number]
+
+Note: From 6 April 2026, SSP is payable from the first day of absence. Waiting days have been abolished and the lower earnings limit has been removed. Ensure payroll reflects this change.
 
 SECTION 1 - EMPLOYEE DETAILS
 
@@ -110,6 +112,10 @@ Manager Signature: _______________________ Date: [INSERT: Date]
 Copy provided to employee: Yes / No
 Copy placed on personnel file: Yes / No
 
+## Record Keeping
+
+Employers are now required by law to keep annual leave and holiday pay records for all workers for six years. This return to work form should be retained as part of the employee absence record. The Fair Work Agency, launched 7 April 2026, has the power to investigate proactively and can examine records retrospectively for up to six years.
+
 HR guidance document - review before use - not legal advice`
   },
 
@@ -153,6 +159,8 @@ OPTION C - PATTERN OF ABSENCE
 A pattern has been identified in your absence record which the organisation wishes to discuss with you. The pattern identified is: [INSERT: Description of pattern identified].
 
 [END OF OPTIONS]
+
+Note: Your annual leave and holiday pay records must be maintained for a minimum of six years as required by law from April 2026. The Fair Work Agency can investigate these records proactively.
 
 The meeting details are as follows:
 
@@ -304,6 +312,10 @@ RIGHT TO BE ACCOMPANIED
 
 Although this is not a formal hearing, you have the right to be accompanied at this meeting by a trade union representative or a work colleague. If you wish to be accompanied, please let me know the name of your companion in advance.
 
+SEPARATION OF ROLES
+
+The investigating officer conducting this meeting has had no involvement in the events under investigation and holds no decision-making authority regarding any disciplinary outcome. The investigation is a fact-finding exercise only. Any decision on whether disciplinary action is appropriate will be made by a separate manager following receipt of the investigation report.
+
 WHAT TO EXPECT
 
 During the meeting, I will explain the matter being investigated and ask you questions. You will have the opportunity to give your account, provide any relevant information, and identify any witnesses or evidence you would like to be considered.
@@ -377,7 +389,7 @@ Note Taker: [INSERT: Name and job title of note taker]
 HR Representative: [INSERT: Name of HR representative]
 Management Presenting Officer: [INSERT: Name of person presenting the management case]
 
-Please note that the hearing chair was not involved in the investigation and has no prior involvement in this matter.
+Please note that the hearing chair was not involved in the investigation and has no prior involvement in this matter. The roles of investigator, hearing chair, and any appeal manager are held by separate individuals to ensure fairness and impartiality in accordance with the Acas Code of Practice.
 
 ENCLOSED EVIDENCE
 
@@ -431,6 +443,12 @@ Yours sincerely,
 [INSERT: Contact details]
 
 Enc: [INSERT: List of enclosures]
+
+NOTE ON PROTECTED DISCLOSURES
+
+If the matters under investigation relate to or arise from a disclosure you have made about wrongdoing in the workplace, including concerns about health and safety, criminal offences, or breaches of legal obligations, you may have protection under the whistleblowing provisions of the Employment Rights Act 1996 (Part IVA). If you believe this applies, you should raise it at or before the hearing so that it can be properly considered.
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -509,12 +527,18 @@ You have the right to appeal against this decision. If you wish to appeal, you m
 
 The appeal will be heard by a manager who was not involved in the original hearing.
 
+SAFEGUARDING CHECK
+
+If this matter involves contact with children or vulnerable adults, the organisation must consider whether a referral to the Disclosure and Barring Service or to the relevant local authority designated officer is required, regardless of the outcome of the disciplinary process. This obligation exists independently of the employment process.
+
 If you have any questions about this letter, please contact [INSERT: Contact name] on [INSERT: Contact details].
 
 Yours sincerely,
 
 [INSERT: Hearing chair full name]
 [INSERT: Hearing chair job title]
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -597,12 +621,18 @@ You have the right to appeal against this decision. If you wish to appeal, you m
 
 The appeal will be heard by a manager who was not involved in the original hearing.
 
+SAFEGUARDING CHECK
+
+If this matter involves contact with children or vulnerable adults, the organisation must consider whether a referral to the Disclosure and Barring Service or to the relevant local authority designated officer is required, regardless of the outcome of the disciplinary process. This obligation exists independently of the employment process.
+
 If you have any questions about this letter, please contact [INSERT: Contact name] on [INSERT: Contact details].
 
 Yours sincerely,
 
 [INSERT: Hearing chair full name]
 [INSERT: Hearing chair job title]
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -680,6 +710,16 @@ be served on garden leave. You are not required to attend the workplace during y
 
 [END DELETE]
 
+NOTE FOR EMPLOYER
+
+Before issuing this letter, confirm the following:
+- Has the Acas Code been followed at every stage? A tribunal may uplift compensation by up to 25% if the Code has not been followed.
+- Has separation of roles been maintained (investigator, hearing chair, appeal manager are all different people)?
+- Has the employee been given a genuine opportunity to state their case?
+- Have all mitigating factors been properly considered?
+- Is the decision within the range of reasonable responses (Iceland Frozen Foods v Jones [1983])?
+- From January 2027: does the employee have six or more months of service? If so, full unfair dismissal rights apply with no compensation cap.
+
 FINAL PAY
 
 Your final pay will include:
@@ -710,6 +750,8 @@ Yours sincerely,
 
 [INSERT: Hearing chair full name]
 [INSERT: Hearing chair job title]
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -788,6 +830,20 @@ I have decided that you are summarily dismissed from your employment with [INSER
 
 Your effective date of termination is: [INSERT: Date of termination]
 
+NOTE FOR EMPLOYER
+
+Before issuing this letter, confirm the following:
+- Has the Acas Code been followed at every stage? A tribunal may uplift compensation by up to 25% if the Code has not been followed.
+- Has separation of roles been maintained (investigator, hearing chair, appeal manager are all different people)?
+- Has the employee been given a genuine opportunity to state their case?
+- Have all mitigating factors been properly considered?
+- Is the decision within the range of reasonable responses (Iceland Frozen Foods v Jones [1983])?
+- From January 2027: does the employee have six or more months of service? If so, full unfair dismissal rights apply with no compensation cap.
+
+GROSS MISCONDUCT NOTE
+
+Summary dismissal is reserved for cases of gross misconduct where the behaviour is so serious that it fundamentally undermines the employment relationship. Examples may include theft, fraud, physical violence, gross negligence, or serious breach of trust. The burden of proof rests with the employer to show, on the balance of probabilities, that the employee committed the misconduct alleged (BHS v Burchell [1978]).
+
 FINAL PAY
 
 Your final pay will include:
@@ -815,6 +871,8 @@ Yours sincerely,
 
 [INSERT: Hearing chair full name]
 [INSERT: Hearing chair job title]
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -892,6 +950,10 @@ Yours sincerely,
 [INSERT: Manager or HR representative full name]
 [INSERT: Job title]
 [INSERT: Contact details]
+
+PROTECTED DISCLOSURE CHECK
+
+If any part of your grievance concerns wrongdoing in the workplace, including health and safety failures, criminal conduct, breach of legal obligations, or concealment of any of these, your complaint may amount to a protected disclosure under Part IVA of the Employment Rights Act 1996. If this applies, additional protections are available to you. From April 2026, disclosures about sexual harassment are also expressly covered as qualifying disclosures.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -1063,6 +1125,8 @@ In light of the above findings, the following actions will be taken:
 
 [INSERT IF NO ACTIONS: Having considered your grievance fully, I have not identified any actions that are required at this time. The reasons for this are set out in my findings above.]
 
+If any element of your grievance amounted to a protected disclosure, the organisation has a duty to ensure that you suffer no detriment as a result of having raised it. If you believe you have suffered any detrimental treatment following the submission of your grievance, you should raise this immediately.
+
 MOVING FORWARD
 
 [INSERT: Statement about the working relationship going forward, any support to be provided, any mediation offered, and any monitoring arrangements. Address the practical steps for resuming normal working relationships.]
@@ -1157,6 +1221,12 @@ The following support will be provided to help you achieve the required standard
 4. Additional Support: [INSERT: Any other support such as adjusted workload, additional resources, coaching, or other assistance]
 
 If you identify any additional support that would help you achieve the required standards, please raise this with your line manager at any time.
+
+REASONABLE ADJUSTMENTS
+
+If you have a disability or long-term health condition as defined by the Equality Act 2010, reasonable adjustments may be required to enable you to meet the expected standards. If this applies, please raise it so that the organisation can consider what adjustments are appropriate before the review period begins.
+
+If your performance difficulties are related to a health condition, an occupational health referral may be appropriate. This would be arranged with your consent.
 
 REVIEW MEETINGS
 
@@ -1275,6 +1345,10 @@ Note: If the employee declines to sign, record this and the reason given. The no
 Copy provided to employee: Yes / No
 Copy placed on personnel file: Yes / No
 
+RECORD RETENTION
+
+This file note should be retained for a minimum of six years in accordance with the record-keeping requirements introduced in April 2026. The Fair Work Agency has the power to request employment records for inspection at any time.
+
 HR guidance document - review before use - not legal advice`
   },
 
@@ -1389,6 +1463,12 @@ Copy provided to employee: Yes / No
 Copy placed on personnel file: Yes / No
 Next review date recorded: Yes / No
 
+DUTY TO MAKE ADJUSTMENTS
+
+The duty to make reasonable adjustments arises under sections 20 and 21 of the Equality Act 2010 where a provision, criterion, or practice puts a disabled person at a substantial disadvantage. The employer must take reasonable steps to avoid the disadvantage. What is reasonable depends on factors including the effectiveness of the adjustment, its practicability, cost, and the size and resources of the employer.
+
+Failure to make reasonable adjustments is a form of unlawful disability discrimination.
+
 HR guidance document - review before use - not legal advice`
   },
 
@@ -1413,6 +1493,8 @@ IMPORTANT NOTICES
 2. Not Protected for Discrimination or Whistleblowing: Without prejudice protection does not apply to claims of discrimination, harassment, victimisation, or whistleblowing detriment in all circumstances. If your situation involves any of these matters, you should take specialist legal advice before agreeing to any terms.
 
 3. Solicitor Required for Binding Agreement: These heads of terms cannot become a binding settlement agreement unless and until they are incorporated into a formal settlement agreement prepared by a solicitor and signed by both parties, with the employee having received independent legal advice from a relevant independent adviser as required by section 203 of the Employment Rights Act 1996 and corresponding provisions in equality and other legislation.
+
+From October 2026, the time limit for bringing most employment tribunal claims extends from three months to six months. This should be factored into the timeline for completing any settlement agreement.
 
 PARTIES
 
@@ -1500,6 +1582,8 @@ Dear [INSERT: Employee first name],
 
 Thank you for letting me know that you are unwell and unable to attend work today. I hope you feel better soon.
 
+Note: From 6 April 2026, SSP is payable from the first day of absence. Waiting days have been abolished and the lower earnings limit has been removed. Ensure payroll reflects this change.
+
 I wanted to confirm that your absence has been recorded from today, [INSERT: Date of absence]. There is no need to provide any clinical detail at this stage. Your wellbeing is what matters.
 
 As a reminder, our reporting procedure asks that you make contact by [INSERT: Reporting time, e.g. 9:00am] on each day of absence, unless we agree a different arrangement. Please contact [INSERT: Contact name or role] by [INSERT: Method of contact, e.g. phone or email] to report your continued absence if you are not well enough to return tomorrow.
@@ -1532,6 +1616,8 @@ HR guidance document - review before use - not legal advice`
 Dear [INSERT: Employee first name],
 
 Welcome back. I hope you are feeling better.
+
+Note: From 6 April 2026, SSP is payable from the first day of absence. Waiting days have been abolished and the lower earnings limit has been removed. Ensure payroll reflects this change.
 
 Now that you have returned to work, I would like to invite you to a brief return to work meeting. This is a routine welfare conversation and not a disciplinary meeting. Its purpose is simply to check how you are, to see if there is any support we can offer, and to update you on anything you may have missed.
 
@@ -1570,6 +1656,8 @@ HR guidance document - review before use - not legal advice`
 Dear [INSERT: Employee first name],
 
 I wanted to get in touch as you have now been away from work for four weeks, having been absent since [INSERT: First day of absence]. I hope you are doing as well as can be expected, and I want you to know that there is no pressure on you to return before you are ready.
+
+Note: From 6 April 2026, SSP is payable from the first day of absence. Waiting days have been abolished and the lower earnings limit has been removed. Ensure payroll reflects this change.
 
 The purpose of this email is simply to check in, to let you know we are thinking of you, and to make sure you are aware of the support available.
 
@@ -1691,6 +1779,8 @@ Yours sincerely,
 [INSERT: Job Title]
 [INSERT: Organisation Name]
 
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
+
 HR guidance document - review before use - not legal advice`
   },
 
@@ -1749,6 +1839,8 @@ Yours sincerely,
 [INSERT: Manager Name]
 [INSERT: Job Title]
 [INSERT: Organisation Name]
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
 
 HR guidance document - review before use - not legal advice`
   },
@@ -2022,6 +2114,319 @@ This organisation's policy is to provide factual references confirming dates of 
 If you require any clarification, please do not hesitate to contact me.
 
 Yours sincerely,
+
+[INSERT: Manager Name]
+[INSERT: Job Title]
+[INSERT: Organisation Name]
+
+HR guidance document - review before use - not legal advice`
+  },
+
+  {
+    id: 'email_suspension_notification',
+    title: 'Suspension Notification',
+    category: 'email',
+    tier: 2,
+    description: 'Formal notification of precautionary suspension pending investigation. Confirms full pay, conditions, and review commitment.',
+    triggers: ['suspension', 'suspended', 'precautionary suspension'],
+    reviewNotice: 'This is a formal process email. Must be reviewed by a qualified HR professional before sending. Suspension must be kept under regular review.',
+    content: `Subject: Precautionary Suspension from Duty
+
+Dear [INSERT: Employee first name],
+
+I am writing to confirm that you have been suspended from duty with effect from [INSERT: Date and time of suspension]. This letter sets out the terms of your suspension and the reasons for it.
+
+REASON FOR SUSPENSION
+
+This suspension is a precautionary measure to allow an investigation to take place into [INSERT: Brief factual description of the matter under investigation]. It is not a disciplinary sanction. No assumptions have been made about the outcome of the investigation, and this suspension does not imply guilt or wrongdoing on your part.
+
+The decision to suspend has been taken because [INSERT: Reason suspension is considered necessary, e.g. to preserve evidence, to protect the integrity of the investigation, to safeguard other employees, or to prevent a recurrence of the alleged conduct].
+
+TERMS OF YOUR SUSPENSION
+
+During your suspension, the following conditions apply:
+
+1. You will continue to receive your full pay and contractual benefits throughout the period of suspension.
+
+2. You must not attend the workplace unless expressly invited to do so by [INSERT: Name of authorising manager]. This includes all sites operated by the organisation.
+
+3. You must not contact any colleagues, clients, or third parties in connection with the matter under investigation. If you need to contact a colleague for a personal reason unrelated to the investigation, you should seek permission from [INSERT: Contact name] first.
+
+4. You must remain available during your normal working hours and be contactable by telephone or email. If you need to be unavailable for any reason (for example, a medical appointment), please notify [INSERT: Contact name] in advance.
+
+5. You must not access any of the organisation's IT systems, email, databases, or electronic records during your suspension unless expressly authorised. Your access credentials may be temporarily disabled as a precautionary measure.
+
+REGULAR REVIEW
+
+Suspension will be kept under regular review. I will contact you at least once per week to update you on the progress of the investigation and to confirm whether your suspension needs to continue. If it becomes clear that suspension is no longer necessary, it will be lifted promptly.
+
+Your designated point of contact during your suspension is [INSERT: Contact name, job title, phone number, and email address]. If you have any questions or concerns at any time, please contact this person.
+
+SUPPORT AVAILABLE
+
+I recognise that suspension can be a difficult and stressful experience, even when it is precautionary. I would like to remind you that confidential support is available through our Employee Assistance Programme (EAP) on [INSERT: EAP contact number]. This service is free, independent, and available 24 hours a day.
+
+NEXT STEPS
+
+The investigation will be carried out as quickly as possible. You will be informed of any developments that affect you and will be given the opportunity to participate in the investigation at the appropriate stage.
+
+If you have any questions about the contents of this letter, please do not hesitate to contact [INSERT: Contact name] at [INSERT: Contact details].
+
+Yours sincerely,
+
+[INSERT: Manager Name]
+[INSERT: Job Title]
+[INSERT: Organisation Name]
+
+HR guidance document - review before use - not legal advice`
+  },
+
+  {
+    id: 'email_appeal_hearing_invitation',
+    title: 'Appeal Hearing Invitation',
+    category: 'email',
+    tier: 2,
+    description: 'Invitation to appeal hearing following disciplinary outcome. Confirms grounds, panel, companion rights, and possible outcomes.',
+    triggers: ['appeal hearing', 'appeal invitation', 'appeal meeting'],
+    reviewNotice: 'This is a formal process email. Must be reviewed by a qualified HR professional before sending. Ensure the appeal panel chair had no prior involvement.',
+    content: `Subject: Invitation to Appeal Hearing - Case Reference [INSERT: Case reference number]
+
+Dear [INSERT: Employee first name],
+
+I am writing to acknowledge receipt of your letter/email dated [INSERT: Date of appeal] in which you appealed against the [INSERT: nature of decision, e.g. first written warning / final written warning / dismissal] issued to you on [INSERT: Date of original outcome].
+
+GROUNDS OF APPEAL
+
+I understand the grounds of your appeal to be as follows:
+
+1. [INSERT: First ground of appeal as stated by the employee]
+2. [INSERT: Second ground of appeal if applicable]
+[INSERT: Additional grounds as required]
+
+If this summary does not accurately reflect your grounds of appeal, please let me know as soon as possible so that the record can be corrected before the hearing.
+
+APPEAL HEARING DETAILS
+
+You are invited to attend an appeal hearing as follows:
+
+Date: [INSERT: Hearing date]
+Time: [INSERT: Hearing time]
+Location: [INSERT: Hearing location or video call link]
+Appeal Panel Chair: [INSERT: Name and job title of appeal panel chair]
+Note Taker: [INSERT: Name and job title of note taker]
+HR Representative: [INSERT: Name of HR representative if attending]
+
+The appeal panel chair has had no prior involvement in the investigation, the original disciplinary hearing, or the decision being appealed. The appeal will be conducted impartially.
+
+RIGHT TO BE ACCOMPANIED
+
+You have the statutory right to be accompanied at this hearing by a trade union representative or a work colleague. Your companion may address the hearing, put your case on your behalf, ask questions, and confer with you during the hearing. If you wish to be accompanied, please confirm the name of your companion to [INSERT: Contact name] at least [INSERT: Number] working days before the hearing.
+
+PREPARATION
+
+At the hearing, you will be invited to present your case. You may wish to prepare by considering the following:
+
+- The specific grounds on which you are appealing
+- Any new evidence that has become available since the original hearing
+- Any procedural concerns you wish to raise about the original process
+- The outcome you are seeking
+
+If you intend to submit any documents or call any witnesses, please notify [INSERT: Contact name] at least [INSERT: Number] working days before the hearing so that arrangements can be made.
+
+POSSIBLE OUTCOMES
+
+The possible outcomes of the appeal hearing are:
+
+- The original decision is upheld in full
+- The original decision is overturned and the matter is closed
+- A lesser sanction is substituted for the original decision
+- The matter is referred back for a rehearing before a different panel
+
+The decision of the appeal panel is final and there is no further right of appeal within the organisation.
+
+If you are unable to attend on the date above, please contact me as soon as possible to arrange an alternative date within five working days of the original date. If you fail to attend without reasonable explanation, the appeal hearing may proceed in your absence.
+
+Yours sincerely,
+
+[INSERT: Manager Name]
+[INSERT: Job Title]
+[INSERT: Organisation Name]
+
+HR guidance document - review before use - not legal advice`
+  },
+
+  {
+    id: 'email_probation_review',
+    title: 'Probation Review Meeting Invitation',
+    category: 'email',
+    tier: 1,
+    description: 'Invitation to probation review meeting. Covers discussion areas, possible outcomes, and January 2027 unfair dismissal changes.',
+    triggers: ['probation review', 'probationary period', 'probation meeting'],
+    reviewNotice: 'Review before use to ensure it reflects your organisation specific procedures and probation policy.',
+    content: `Subject: Probation Review Meeting - [INSERT: Date of meeting]
+
+Dear [INSERT: Employee first name],
+
+I am writing to invite you to a probation review meeting. As you are aware, your employment is subject to a probationary period of [INSERT: Length of probationary period], which is due to end on [INSERT: End date of probationary period].
+
+The purpose of this meeting is to review your progress during the probationary period and to discuss the next steps.
+
+MEETING DETAILS
+
+Date: [INSERT: Meeting date]
+Time: [INSERT: Meeting time]
+Location: [INSERT: Meeting location or video call link]
+Attendees: [INSERT: Names and roles of all attendees]
+
+AREAS FOR DISCUSSION
+
+At the meeting, we will discuss the following areas:
+
+1. Your performance against the objectives and standards set at the start of your employment
+2. Your attendance and timekeeping during the probationary period
+3. Your conduct and working relationships within the team
+4. Any training or development needs that have been identified
+5. Any concerns you may have about your role or the support you have received
+
+PREPARATION
+
+You do not need to prepare a formal document for this meeting. However, you may find it helpful to reflect on your progress, any achievements you are proud of, and any areas where you feel you would benefit from additional support.
+
+POSSIBLE OUTCOMES
+
+The possible outcomes of the probation review are:
+
+1. Probation passed: Your probationary period is confirmed as successfully completed and your employment continues on a permanent basis.
+2. Probation extended: Your probationary period is extended for a further defined period to allow additional time to meet the required standards. Specific targets and support will be agreed.
+3. Probation passed with conditions: Your probation is passed but with specific areas for ongoing development identified and monitored.
+4. Probation not passed: In exceptional circumstances, the outcome may be that your probation has not been passed and your employment will be terminated with your contractual notice period.
+
+If you have any questions about this meeting or would like to discuss anything in advance, please do not hesitate to contact me.
+
+Kind regards,
+
+[INSERT: Manager Name]
+[INSERT: Job Title]
+[INSERT: Organisation Name]
+
+IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. Ensure this is factored into any decision to dismiss. If the employee has six or more months of service at the date of dismissal, full unfair dismissal rights will apply.
+
+HR guidance document - review before use - not legal advice`
+  },
+
+  {
+    id: 'email_flexible_working_response',
+    title: 'Flexible Working Request Response',
+    category: 'email',
+    tier: 2,
+    description: 'Response to a statutory flexible working request. Covers approval, partial approval, or refusal with statutory grounds.',
+    triggers: ['flexible working', 'flexible working request', 'flexible working response'],
+    reviewNotice: 'This is a formal process email. Must be reviewed by a qualified HR professional before sending. Ensure the correct statutory grounds for refusal are cited.',
+    content: `Subject: Response to Your Flexible Working Request - [INSERT: Date of request]
+
+Dear [INSERT: Employee first name],
+
+Thank you for your flexible working request submitted on [INSERT: Date of request]. I have now considered your request in accordance with the statutory procedure under section 80F of the Employment Rights Act 1996.
+
+For reference, your request was to [INSERT: Brief summary of the flexible working arrangement requested, e.g. reduce working hours from 5 to 4 days per week / change start and finish times / work from home on specified days].
+
+[DELETE OPTIONS THAT DO NOT APPLY]
+
+OPTION A: REQUEST APPROVED
+
+I am pleased to confirm that your request has been approved. The agreed changes to your working pattern are as follows:
+
+[INSERT: Full details of the approved flexible working arrangement, including days, hours, start and finish times, location, and any other relevant terms]
+
+These changes will take effect from [INSERT: Start date of new arrangement].
+
+Your contract of employment will be updated to reflect this change. Please note that this is a permanent change to your terms and conditions unless otherwise agreed. If you wish to request a further change in the future, you are entitled to make up to two statutory requests in any twelve-month period.
+
+OPTION B: REQUEST PARTIALLY APPROVED
+
+Having considered your request, I am able to offer a modified arrangement as follows:
+
+[INSERT: Full details of the modified arrangement being offered and an explanation of why the full request cannot be accommodated]
+
+If you are happy to proceed on this basis, please confirm in writing and the changes will take effect from [INSERT: Start date]. If you would like to discuss the modified arrangement further, I am happy to arrange a meeting.
+
+OPTION C: REQUEST REFUSED
+
+Having considered your request carefully, I regret that I am unable to approve it at this time. The statutory ground(s) for refusing your request are as follows:
+
+[DELETE GROUNDS THAT DO NOT APPLY]
+
+1. The burden of additional costs would be disproportionate
+2. There would be a detrimental effect on the ability to meet customer demand
+3. The organisation is unable to reorganise work among existing staff
+4. The organisation is unable to recruit additional staff
+5. There would be a detrimental impact on quality
+6. There would be a detrimental impact on performance
+7. There would be insufficient work during the periods the employee proposes to work
+8. There are planned structural changes that would be incompatible with the request
+
+The specific reasons for refusal are: [INSERT: Detailed explanation of why the request is refused, with reference to the statutory ground(s) cited above. The explanation must be genuine and specific to the circumstances.]
+
+[END DELETE]
+
+RIGHT TO MAKE FURTHER REQUESTS
+
+Under the current legislation, you are entitled to make up to two statutory flexible working requests in any twelve-month period. This right applies from the first day of your employment.
+
+RIGHT OF APPEAL
+
+If your request has been refused or only partially approved, you have the right to appeal. If you wish to appeal, please do so in writing to [INSERT: Name and job title of appeal recipient] within [INSERT: Number] working days of receipt of this letter, setting out the grounds for your appeal.
+
+If you have any questions about this response, please do not hesitate to contact me.
+
+Yours sincerely,
+
+[INSERT: Manager Name]
+[INSERT: Job Title]
+[INSERT: Organisation Name]
+
+HR guidance document - review before use - not legal advice`
+  },
+
+  {
+    id: 'email_right_to_work_follow_up',
+    title: 'Right to Work Document Follow Up',
+    category: 'email',
+    tier: 1,
+    description: 'Follow up where right to work documents are approaching expiry. Covers acceptable documents, statutory right during pending applications, and reassurance.',
+    triggers: ['right to work', 'visa expiry', 'immigration check'],
+    reviewNotice: 'Review before use to ensure it reflects current Home Office guidance on acceptable documents and right to work checks.',
+    content: `Subject: Right to Work Documentation - Action Required
+
+Dear [INSERT: Employee first name],
+
+I am writing to you regarding your right to work documentation. Our records indicate that your current right to work document is due to expire on [INSERT: Expiry date of current document].
+
+I want to reassure you that this is a routine administrative process. All employers in the United Kingdom are required by law to carry out right to work checks on their employees, and to ensure that time-limited documents are checked before their expiry date. This check applies to all employees with time-limited permission to work and is not targeted at any individual or group.
+
+WHAT YOU NEED TO DO
+
+Please provide updated evidence of your right to work in the United Kingdom before [INSERT: Date, which should be before the expiry date]. You may provide any of the following acceptable documents:
+
+1. A current passport showing that the holder is a British citizen or has the right of abode in the United Kingdom
+2. A current biometric immigration document (biometric residence permit) issued by the Home Office indicating that the named person can currently stay in the United Kingdom and is allowed to do the work in question
+3. A current passport or travel document endorsed to show that the holder is allowed to stay in the United Kingdom and is currently allowed to do the type of work in question
+4. A share code obtained from the Home Office online right to work checking service, which can be generated at gov.uk/prove-right-to-work
+5. A certificate of application (digital or non-digital) issued by the Home Office confirming that the holder has an outstanding application, appeal, or administrative review
+
+PENDING APPLICATIONS
+
+If you have submitted an application to the Home Office to extend your permission to stay in the United Kingdom before the expiry of your current permission, you have a statutory right to continue working while that application is pending. In this case, please provide evidence of your pending application (such as a Home Office acknowledgement letter, a certificate of application, or a positive verification from the Employer Checking Service).
+
+The organisation will carry out an Employer Checking Service verification where a pending application is confirmed, and will retain evidence of this check.
+
+SUPPORT
+
+If you have any difficulty obtaining the required documents, or if you have any questions about the process, please contact [INSERT: HR contact name] at [INSERT: HR contact email or phone number]. We are happy to support you through this process and can provide additional time where there is a genuine reason for delay.
+
+Please treat this email as confidential. It is sent to you personally and should not be shared with colleagues.
+
+Kind regards,
 
 [INSERT: Manager Name]
 [INSERT: Job Title]

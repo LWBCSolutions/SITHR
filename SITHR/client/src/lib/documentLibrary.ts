@@ -6,7 +6,7 @@ export interface TemplateSection {
 export interface DocumentTemplate {
   id: string;
   name: string;
-  category: 'Absence' | 'Disciplinary' | 'Grievance' | 'Capability' | 'General';
+  category: 'Absence' | 'Disciplinary' | 'Grievance' | 'Capability' | 'General' | 'General HR';
   description: string;
   filename: string;
   fields: string[];
@@ -62,6 +62,13 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'If yes, the manager should consider whether any reasonable adjustments are required and should consult with HR and, where appropriate, Occupational Health before taking any further action under the Sickness Absence Policy.',
           'Was a fit note (Statement of Fitness for Work) provided? [INSERT: Fit note received]',
           'If a fit note was provided, please confirm whether it recommended any adjustments such as a phased return to work, altered hours, amended duties, or workplace adaptations.',
+        ],
+      },
+      {
+        heading: 'SSP and Record Keeping',
+        paragraphs: [
+          'From 6 April 2026, Statutory Sick Pay is payable from the first day of sickness absence. Waiting days have been abolished and the lower earnings limit has been removed. The manager should confirm that the employee is aware of this change.',
+          'Employers are required by law to keep annual leave and holiday pay records for all workers for six years. This form should be retained as part of the employee absence record. The Fair Work Agency, launched 7 April 2026, has the power to investigate records retrospectively.',
         ],
       },
       {
@@ -213,6 +220,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
         paragraphs: [
           'Having considered all of the information available to me, including the explanations you provided at the meeting, I have decided to issue you with a Stage 1 Absence Warning. This warning will remain on your personnel file for a period of [INSERT: Warning duration] from the date of this letter.',
           'During the period of this warning, your attendance will be monitored closely. Should your attendance fail to improve, or should there be further concerns about your sickness absence, you may be required to attend a Stage 2 Absence Review Meeting, which could result in a further warning or other action under the Sickness Absence Policy.',
+          'Note: From 6 April 2026, SSP is payable from the first day of absence with no waiting days. The lower earnings limit has been removed. Ensure the absence management process and any trigger points account for this change.',
         ],
       },
       {
@@ -282,6 +290,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Having carefully considered all of the circumstances, including the support already offered and the explanations you provided, I have decided to issue you with a Stage 2 Absence Warning. This is an escalation from the previous Stage 1 warning and reflects the continued concern regarding your attendance.',
           'This warning will remain on your personnel file for a period of [INSERT: Warning duration] from the date of this letter.',
           'I must make you aware that, should your attendance not improve to an acceptable level during the period of this warning, you may be required to attend a Stage 3 Final Absence Review. At Stage 3, the possible outcomes include a final written warning or, in the most serious cases, dismissal on grounds of capability due to persistent absence. It is therefore essential that you take all reasonable steps to improve your attendance.',
+          'Note: From 6 April 2026, SSP is payable from the first day of absence with no waiting days. The lower earnings limit has been removed. Ensure the absence management process and any trigger points account for this change.',
         ],
       },
       {
@@ -359,6 +368,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'If the decision is dismissal: The panel has concluded that, despite the warnings and support provided, your level of sickness absence remains such that the organisation can no longer sustain it. The panel has therefore taken the decision to terminate your employment on the grounds of capability due to persistent sickness absence. This decision has been taken with considerable regret and only after all other reasonable options have been exhausted.',
           'Your notice period is [INSERT: Notice period]. Your last working day will be [INSERT: Last working day]. You will receive payment in lieu of any accrued but untaken annual leave, and your final pay will be calculated and issued in accordance with your contract of employment.',
           'If the decision is a final written warning: The panel has decided to issue you with a final written warning. Should your attendance fail to improve during the period of this warning, the matter will be referred for a further review at which dismissal will be a possible outcome.',
+          'Note: From 6 April 2026, SSP is payable from the first day of absence with no waiting days. The lower earnings limit has been removed. Ensure the absence management process and any trigger points account for this change.',
         ],
       },
       {
@@ -430,6 +440,12 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Yours sincerely,',
           '[INSERT: Investigating officer name]',
           'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+      {
+        heading: 'Separation of Roles',
+        paragraphs: [
+          'The investigating officer conducting this meeting has had no involvement in the events under investigation and holds no decision-making authority regarding any disciplinary outcome. The investigation is a fact-finding exercise only. Any decision on whether disciplinary action is appropriate will be made by a separate manager following receipt of the investigation report.',
         ],
       },
     ],
@@ -564,6 +580,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'You should be aware that the possible outcomes of this hearing include, but are not limited to:',
           '[INSERT: Possible outcomes]',
           'The range of sanctions available at a disciplinary hearing includes no further action, a first written warning, a final written warning, and dismissal with or without notice. The sanction applied, if any, will depend on the nature and seriousness of the allegation, any mitigating factors, and your previous disciplinary record.',
+          'IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service and the compensation cap is abolished. If the employee has six or more months of continuous service at the date of any dismissal, full unfair dismissal rights will apply.',
         ],
       },
       {
@@ -584,6 +601,12 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Yours sincerely,',
           '[INSERT: Hearing chair name]',
           'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+      {
+        heading: 'Protected Disclosure Check',
+        paragraphs: [
+          'If the matters under investigation relate to or arise from a disclosure the employee has made about wrongdoing in the workplace, the employee may have protection under the whistleblowing provisions of the Employment Rights Act 1996 (Part IVA). From April 2026, disclosures about sexual harassment are expressly covered as qualifying disclosures. This must be considered before proceeding.',
         ],
       },
     ],
@@ -660,6 +683,12 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Document generated by SIT-HR - Review before use - Not legal advice',
         ],
       },
+      {
+        heading: 'Safeguarding Check',
+        paragraphs: [
+          'If this matter involves contact with children or vulnerable adults, the organisation must consider whether a referral to the Disclosure and Barring Service or to the relevant local authority designated officer is required, regardless of the outcome of the disciplinary process. This obligation exists independently of the employment process.',
+        ],
+      },
     ],
   },
   {
@@ -731,6 +760,7 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Your notice period is [INSERT: Notice period]. Your last working day will be [INSERT: Last working day]. You will receive payment for your notice period and any accrued but untaken annual leave in your final pay. Your P45 will be issued in due course.',
           'In cases of gross misconduct, dismissal will be without notice or payment in lieu of notice. The panel\'s letter will specify whether the dismissal is summary (without notice) or with notice.',
           'You are required to return all organisation property, including identification badges, keys, equipment, and documents, on or before your last working day.',
+          'IMPORTANT: From 1 January 2027, the qualifying period for unfair dismissal reduces to six months and the compensation cap is abolished. Before confirming any dismissal, verify: (1) the Acas Code has been followed at every stage, (2) separation of roles has been maintained, (3) the employee was given a genuine opportunity to state their case, (4) all mitigating factors have been considered, and (5) the decision falls within the range of reasonable responses.',
         ],
       },
       {
@@ -869,6 +899,12 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Document generated by SIT-HR - Review before use - Not legal advice',
         ],
       },
+      {
+        heading: 'Protected Disclosure Check',
+        paragraphs: [
+          'If any part of this grievance concerns wrongdoing in the workplace, including health and safety failures, criminal conduct, breach of legal obligations, or concealment of any of these, the complaint may amount to a protected disclosure under Part IVA of the Employment Rights Act 1996. From April 2026, sexual harassment disclosures are also expressly covered. Additional protections apply in such cases.',
+        ],
+      },
     ],
   },
   {
@@ -999,6 +1035,12 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Yours sincerely,',
           '[INSERT: Hearing officer name]',
           'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+      {
+        heading: 'Protected Disclosure Check',
+        paragraphs: [
+          'If any part of this grievance concerns wrongdoing in the workplace, including health and safety failures, criminal conduct, breach of legal obligations, or concealment of any of these, the complaint may amount to a protected disclosure under Part IVA of the Employment Rights Act 1996. From April 2026, sexual harassment disclosures are also expressly covered. Additional protections apply in such cases.',
         ],
       },
     ],
@@ -1863,6 +1905,330 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
           'Signed: [INSERT: Signed by]',
           'Date: ______________',
           'This file note should be stored securely on the relevant personnel file in accordance with the organisation\'s data protection policy and retained in accordance with the data retention schedule. Access should be restricted to those with a legitimate need to see it.',
+          'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // NEW TEMPLATES (5)
+  // ============================================================
+  {
+    id: 'suspension-notification',
+    name: 'Suspension Notification',
+    category: 'Disciplinary',
+    description: 'Formal letter notifying an employee of their suspension from work on full pay pending investigation. Sets out the terms of suspension, review arrangements, and available support.',
+    filename: 'suspension-notification.docx',
+    fields: [
+      'employeeName',
+      'jobTitle',
+      'suspensionDate',
+      'matterDescription',
+      'reviewFrequency',
+      'eapProvider',
+      'eapNumber',
+      'managerName',
+      'managerTitle',
+      'orgName',
+      'managerContact',
+    ],
+    sections: [
+      {
+        heading: 'Introduction',
+        paragraphs: [
+          'Dear [INSERT: employeeName],',
+          'I am writing to confirm that you are being suspended from your duties with effect from [INSERT: suspensionDate]. This suspension is a neutral act and does not imply that any decision has been made regarding disciplinary action. Suspension is not a disciplinary sanction.',
+          'The reason for your suspension is to allow the organisation to carry out an investigation into the following matter:',
+          '[INSERT: matterDescription]',
+          'This decision has been taken because it is considered necessary to preserve the integrity of the investigation and to protect the interests of all parties involved.',
+        ],
+      },
+      {
+        heading: 'Terms of Suspension',
+        paragraphs: [
+          'During the period of your suspension, the following terms apply:',
+          '1. You will continue to receive your full pay and contractual benefits throughout the suspension period.',
+          '2. You must not attend the workplace unless specifically requested to do so by management.',
+          '3. You must not contact colleagues, clients, or other individuals connected with the matter under investigation, except through your trade union representative or companion.',
+          '4. You must remain available during your normal working hours and be contactable should the organisation need to reach you in connection with the investigation.',
+          '5. You must not access the organisation\'s IT systems, email, or other resources unless specifically authorised to do so.',
+        ],
+      },
+      {
+        heading: 'Review',
+        paragraphs: [
+          'The organisation recognises that suspension should be kept as brief as possible. Your suspension will be reviewed at intervals of [INSERT: reviewFrequency] to determine whether it remains necessary. You will be kept informed of the progress of the investigation and the likely timescales involved.',
+          'If at any point during the investigation it is determined that suspension is no longer necessary, you will be notified and arrangements will be made for your return to work.',
+        ],
+      },
+      {
+        heading: 'Support',
+        paragraphs: [
+          'The organisation understands that suspension can be a difficult and stressful experience. You are encouraged to make use of the Employee Assistance Programme provided by [INSERT: eapProvider], which can be contacted on [INSERT: eapNumber]. This service is confidential and available to you at no cost.',
+          'If you have any questions about the suspension or the investigation process, please contact [INSERT: managerName] ([INSERT: managerTitle]) at [INSERT: managerContact].',
+          'Yours sincerely,',
+          '[INSERT: managerName]',
+          '[INSERT: managerTitle]',
+          '[INSERT: orgName]',
+          'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'appeal-hearing-invite',
+    name: 'Appeal Hearing Invitation',
+    category: 'Disciplinary',
+    description: 'Formal letter inviting an employee to an appeal hearing following a disciplinary or other formal decision, setting out the grounds of appeal, hearing arrangements, and possible outcomes.',
+    filename: 'appeal-hearing-invitation.docx',
+    fields: [
+      'employeeName',
+      'originalDecision',
+      'appealDate',
+      'appealGroundsDate',
+      'hearingDate',
+      'hearingTime',
+      'hearingLocation',
+      'appealChairName',
+      'appealChairTitle',
+      'appealGroundsSummary',
+      'companionNotice',
+      'documentDeadline',
+      'orgName',
+    ],
+    sections: [
+      {
+        heading: 'Introduction',
+        paragraphs: [
+          'Dear [INSERT: employeeName],',
+          'I am writing to confirm that your appeal against the decision of [INSERT: originalDecision], which was communicated to you on [INSERT: appealDate], has been received. Your grounds of appeal were submitted on [INSERT: appealGroundsDate] and an appeal hearing has been arranged.',
+          'The hearing will take place as follows:',
+          'Date: [INSERT: hearingDate]',
+          'Time: [INSERT: hearingTime]',
+          'Location: [INSERT: hearingLocation]',
+          'Appeal Chair: [INSERT: appealChairName] ([INSERT: appealChairTitle])',
+        ],
+      },
+      {
+        heading: 'Your Grounds of Appeal',
+        paragraphs: [
+          'The grounds of appeal as set out in your written submission are summarised as follows:',
+          '[INSERT: appealGroundsSummary]',
+          'At the hearing, you will be given a full opportunity to explain your grounds of appeal and to present any supporting evidence or arguments.',
+        ],
+      },
+      {
+        heading: 'The Hearing',
+        paragraphs: [
+          'The appeal hearing will be conducted by [INSERT: appealChairName], who has had no prior involvement in the original decision. The hearing will consider your grounds of appeal and review the evidence and process from the original proceedings.',
+          'You may present new evidence at the appeal hearing if it is relevant to your grounds of appeal. Please provide any new documentary evidence in advance (see below).',
+        ],
+      },
+      {
+        heading: 'Right to Be Accompanied',
+        paragraphs: [
+          'In accordance with section 10 of the Employment Relations Act 1999, you have the statutory right to be accompanied at this hearing by a trade union representative or a work colleague of your choice. Your companion may address the hearing, put your case, and confer with you during proceedings, but may not answer questions on your behalf.',
+          '[INSERT: companionNotice]',
+        ],
+      },
+      {
+        heading: 'Additional Evidence',
+        paragraphs: [
+          'If you wish to submit any additional documents or written evidence in support of your appeal, these must be provided to the appeal chair by [INSERT: documentDeadline] so that they can be reviewed in advance of the hearing.',
+        ],
+      },
+      {
+        heading: 'Possible Outcomes',
+        paragraphs: [
+          'The possible outcomes of the appeal hearing are as follows: the original decision may be upheld; the original decision may be overturned in whole or in part; or a different sanction may be substituted.',
+          'The decision of the appeal panel will be final and there is no further right of internal appeal.',
+        ],
+      },
+      {
+        heading: 'Inability to Attend',
+        paragraphs: [
+          'If you are unable to attend the hearing on the date specified, you must notify us as soon as possible. You may propose one alternative date, which must fall within five working days of the original hearing date. If you fail to attend without providing a reasonable explanation, the appeal may be determined in your absence based on the written submissions.',
+          'Yours sincerely,',
+          '[INSERT: appealChairName]',
+          '[INSERT: appealChairTitle]',
+          '[INSERT: orgName]',
+          'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'probation-review',
+    name: 'Probation Review Meeting',
+    category: 'General HR',
+    description: 'Letter inviting an employee to a probation review meeting, setting out the areas for discussion, possible outcomes, and relevant information about the revised qualifying period for unfair dismissal.',
+    filename: 'probation-review-meeting.docx',
+    fields: [
+      'employeeName',
+      'reviewStage',
+      'meetingDate',
+      'meetingTime',
+      'meetingLocation',
+      'managerName',
+      'managerTitle',
+      'orgName',
+    ],
+    sections: [
+      {
+        heading: 'Introduction',
+        paragraphs: [
+          'Dear [INSERT: employeeName],',
+          'I am writing to invite you to a [INSERT: reviewStage] probation review meeting. This meeting is part of the organisation\'s standard probationary process and is intended to review your progress, performance, and suitability for the role.',
+          'The meeting has been arranged as follows:',
+          'Date: [INSERT: meetingDate]',
+          'Time: [INSERT: meetingTime]',
+          'Location: [INSERT: meetingLocation]',
+        ],
+      },
+      {
+        heading: 'Discussion Areas',
+        paragraphs: [
+          'The following areas will be discussed at the meeting:',
+          '1. Your overall performance against the objectives and expectations set out at the start of your employment or at the previous review.',
+          '2. Your attendance, timekeeping, and reliability during the probationary period.',
+          '3. Your conduct and how you have integrated with the team and the organisation.',
+          '4. Any training or development needs that have been identified.',
+          '5. Any concerns you may have about your role, working environment, or the support available to you.',
+        ],
+      },
+      {
+        heading: 'Possible Outcomes',
+        paragraphs: [
+          'The possible outcomes of this review meeting are as follows:',
+          '1. Confirmation of your appointment and successful completion of the probationary period.',
+          '2. Extension of the probationary period for a further specified duration, with clear objectives for the extended period.',
+          '3. Identification of additional support, training, or adjustments to assist you in meeting the required standards.',
+          '4. In cases where performance, conduct, or attendance has been significantly below the required standard, termination of employment during or at the end of the probationary period, with the appropriate notice as set out in your contract of employment.',
+        ],
+      },
+      {
+        heading: 'January 2027 Note',
+        paragraphs: [
+          'From 1 January 2027, the qualifying period for unfair dismissal protection reduces to six months of continuous service. If you have completed six or more months of continuous service at the date of any decision to terminate your employment, full unfair dismissal rights will apply. The organisation will ensure that any decision is fair, reasonable, and procedurally sound regardless of length of service.',
+          'Yours sincerely,',
+          '[INSERT: managerName]',
+          '[INSERT: managerTitle]',
+          '[INSERT: orgName]',
+          'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'flexible-working-response',
+    name: 'Flexible Working Request Response',
+    category: 'General HR',
+    description: 'Formal response to a statutory flexible working request, covering approval, partial approval, or refusal with statutory grounds, and the right of appeal.',
+    filename: 'flexible-working-response.docx',
+    fields: [
+      'employeeName',
+      'requestDate',
+      'requestSummary',
+      'proposedStartDate',
+      'decisionOption',
+      'newPattern',
+      'newHours',
+      'otherChanges',
+      'trialPeriod',
+      'alternativeDetails',
+      'refusalGrounds',
+      'refusalReasons',
+      'appealRecipient',
+      'appealDeadline',
+      'managerName',
+      'managerTitle',
+      'orgName',
+    ],
+    sections: [
+      {
+        heading: 'Your Request',
+        paragraphs: [
+          'Dear [INSERT: employeeName],',
+          'Thank you for your flexible working request submitted on [INSERT: requestDate]. Your request has been considered in accordance with the organisation\'s Flexible Working Policy and the statutory framework set out in Part 8A of the Employment Rights Act 1996, as amended by the Employment Relations (Flexible Working) Act 2023.',
+          'You requested the following change to your working arrangements:',
+          '[INSERT: requestSummary]',
+          'You proposed that this change take effect from [INSERT: proposedStartDate].',
+        ],
+      },
+      {
+        heading: 'Decision',
+        paragraphs: [
+          '[INSERT: decisionOption]',
+          'If your request has been approved: Your flexible working request has been approved. Your new working arrangements will be as follows: Working Pattern: [INSERT: newPattern]. Hours: [INSERT: newHours]. Other Changes: [INSERT: otherChanges]. These changes will take effect from [INSERT: proposedStartDate]. Please note that this is a permanent change to your terms and conditions of employment unless otherwise agreed. A trial period of [INSERT: trialPeriod] may apply, during which the new arrangements will be reviewed.',
+          'If your request has been partially approved: Your request has been approved in part. The organisation is able to offer the following alternative arrangement: [INSERT: alternativeDetails]. If you wish to accept this alternative, please confirm in writing. If you do not wish to accept the alternative, your current working arrangements will remain unchanged.',
+          'If your request has been refused: After careful consideration, the organisation is unable to approve your request. The statutory ground or grounds for refusal are as follows: [INSERT: refusalGrounds]. The specific reasons are: [INSERT: refusalReasons]. The eight statutory grounds on which an employer may refuse a flexible working request are: (1) the burden of additional costs, (2) detrimental effect on ability to meet customer demand, (3) inability to reorganise work among existing staff, (4) inability to recruit additional staff, (5) detrimental impact on quality, (6) detrimental impact on performance, (7) insufficiency of work during the periods the employee proposes to work, and (8) planned structural changes.',
+        ],
+      },
+      {
+        heading: 'Right of Appeal',
+        paragraphs: [
+          'If your request has been refused or only partially approved, you have the right to appeal against this decision. If you wish to appeal, please submit your grounds of appeal in writing to [INSERT: appealRecipient] by [INSERT: appealDeadline].',
+          'Your appeal will be heard by a manager who was not involved in the original decision.',
+          'Yours sincerely,',
+          '[INSERT: managerName]',
+          '[INSERT: managerTitle]',
+          '[INSERT: orgName]',
+          'Document generated by SIT-HR - Review before use - Not legal advice',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'right-to-work-followup',
+    name: 'Right to Work Follow-Up',
+    category: 'General HR',
+    description: 'Letter to an employee whose right to work documentation is approaching expiry, requesting updated evidence and explaining the consequences of failing to provide it.',
+    filename: 'right-to-work-followup.docx',
+    fields: [
+      'employeeName',
+      'expiryDate',
+      'deadlineDate',
+      'managerName',
+      'managerTitle',
+      'orgName',
+      'managerContact',
+    ],
+    sections: [
+      {
+        heading: 'Introduction',
+        paragraphs: [
+          'Dear [INSERT: employeeName],',
+          'Our records indicate that your current right to work documentation is due to expire on [INSERT: expiryDate]. Under the Immigration, Asylum and Nationality Act 2006, the organisation is required to verify that all employees have an ongoing right to work in the United Kingdom. Failure to hold a valid right to work document may mean the organisation loses its statutory excuse against a civil penalty.',
+          'Please provide updated right to work evidence by [INSERT: deadlineDate]. If you are unable to provide documentation by this date, please contact [INSERT: managerName] at [INSERT: managerContact] as soon as possible so that we can discuss your circumstances.',
+        ],
+      },
+      {
+        heading: 'Acceptable Documents',
+        paragraphs: [
+          'The following types of document are acceptable as evidence of your right to work:',
+          '1. A current passport showing that you are a British citizen or have an indefinite right to remain in the United Kingdom.',
+          '2. A current Biometric Residence Permit issued by the Home Office confirming your right to work.',
+          '3. A valid share code obtained from the Home Office online right to work checking service, which your employer can verify online.',
+          '4. A current Certificate of Application or Positive Verification Letter issued by the Home Office in connection with an outstanding immigration application.',
+        ],
+      },
+      {
+        heading: 'Pending Applications',
+        paragraphs: [
+          'If you have submitted an application to the Home Office to extend or vary your leave to remain, and that application was made before your current leave expired, you may have a statutory right to continue working under section 3C of the Immigration Act 1971. In this case, please provide evidence of the pending application, such as a Home Office acknowledgement letter or proof of postage, together with a copy of the application form.',
+          'The organisation will use the Home Office Employer Checking Service to verify your right to work where a share code or physical document is not available.',
+        ],
+      },
+      {
+        heading: 'Reassurance',
+        paragraphs: [
+          'This letter is sent as a routine administrative step to ensure that the organisation remains compliant with its legal obligations. It does not reflect any concern about your employment status or performance.',
+          'If you have any questions or require assistance in obtaining the relevant documentation, please do not hesitate to contact [INSERT: managerName] at [INSERT: managerContact].',
+          'Yours sincerely,',
+          '[INSERT: managerName]',
+          '[INSERT: managerTitle]',
+          '[INSERT: orgName]',
           'Document generated by SIT-HR - Review before use - Not legal advice',
         ],
       },
