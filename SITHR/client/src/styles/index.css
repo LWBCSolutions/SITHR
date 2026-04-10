@@ -3513,13 +3513,12 @@ svg {
 }
 
 .doc-lib-card {
-  transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out, transform 0.2s ease-out;
+  transition: all var(--duration-normal) var(--ease-out-expo);
 }
 
 .doc-lib-card:hover {
   border-color: var(--blue-accent);
-  box-shadow: 0 4px 16px rgba(45, 125, 210, 0.12);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 /* === 38. Notifications === */
