@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getAuthHeaders } from '../lib/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import PageFooter from './PageFooter';
 
 interface ArticleDraft {
@@ -313,7 +315,9 @@ export default function AdminPanel() {
                           className="admin-draft-content"
                           onClick={e => e.stopPropagation()}
                         >
-                          <div className="admin-draft-content__body">{draft.content}</div>
+                          <div className="admin-draft-content__body news-article__body">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{draft.content}</ReactMarkdown>
+                          </div>
                         </div>
                       )}
 
