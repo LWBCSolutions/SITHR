@@ -249,6 +249,14 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
             </svg>
             <span>Settings</span>
           </a>
+          <a href="/admin" className="sidebar-nav-btn" onClick={(e) => { e.preventDefault(); window.location.href = '/admin'; }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#2D7DD2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="12" height="12" rx="2" />
+              <line x1="2" y1="6" x2="14" y2="6" />
+              <line x1="6" y1="6" x2="6" y2="14" />
+            </svg>
+            <span>Admin</span>
+          </a>
         </div>
 
         <div className="sidebar-footer">

@@ -10,6 +10,7 @@ import NewsList from './components/NewsList';
 import NewsArticle from './components/NewsArticle';
 import SettingsPage from './components/SettingsPage';
 import DocumentLibrary from './components/DocumentLibrary';
+import AdminPanel from './components/AdminPanel';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 
 export default function App() {
@@ -44,6 +45,13 @@ export default function App() {
       <Route path="/news" element={<NewsList />} />
       <Route path="/news/:slug" element={<NewsArticle />} />
       <Route path="/documents" element={<DocumentLibrary />} />
+      <Route path="/admin" element={
+        !user ? <LoginPage /> : (
+          <SubscriptionProvider>
+            <AdminPanel />
+          </SubscriptionProvider>
+        )
+      } />
       <Route path="/settings/*" element={
         !user ? <LoginPage /> : (
           <SubscriptionProvider>
