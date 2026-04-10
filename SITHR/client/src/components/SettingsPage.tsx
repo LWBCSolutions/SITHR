@@ -62,6 +62,11 @@ export default function SettingsPage() {
   const [jobTitle, setJobTitle] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
+  const [postcode, setPostcode] = useState('');
+  const [laCode, setLaCode] = useState('');
+  const [laName, setLaName] = useState('');
+  const [postcodeLooking, setPostcodeLooking] = useState(false);
+  const [postcodeMsg, setPostcodeMsg] = useState('');
 
   // Account state
   const [email, setEmail] = useState('');
@@ -82,6 +87,9 @@ export default function SettingsPage() {
       setDisplayName(profile.display_name || '');
       setOrgName(profile.organisation_name || '');
       setJobTitle(profile.job_title || '');
+      setPostcode(profile.business_postcode || '');
+      setLaCode(profile.local_authority_code || '');
+      setLaName(profile.local_authority_name || '');
     }
   }, [profile]);
 
@@ -110,6 +118,9 @@ export default function SettingsPage() {
           display_name: displayName,
           organisation_name: orgName,
           job_title: jobTitle,
+          business_postcode: postcode,
+          local_authority_code: laCode,
+          local_authority_name: laName,
         }),
       });
       if (res.ok) {
@@ -229,6 +240,7 @@ export default function SettingsPage() {
       >
         {/* Profile Tab */}
         {activeTab === 'profile' && (
+          <>
           <div className="settings-section">
             <h2 className="settings-section__title">Profile Information</h2>
             <p className="settings-section__desc">Update your personal details.</p>
@@ -272,6 +284,64 @@ export default function SettingsPage() {
               {profileSaving ? 'Saving...' : 'Save Profile'}
             </button>
           </div>
+
+          <div className="settings-section" style={{ marginTop: 24 }}>
+            <h2 className="settings-section__title">Business Location</h2>
+            <p className="settings-section__desc">
+              Enter your business postcode to see local council news in the Compliance Calendar.
+            </p>
+
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+              <label className="settings-label" style={{ flex: 1 }}>
+                Business Postcode
+                <input
+                  className="settings-input"
+                  type="text"
+                  value={postcode}
+                  onChange={e => setPostcode(e.target.value.toUpperCase())}
+                  placeholder="e.g. SW1A 1AA"
+                />
+              </label>
+              <button
+                className="settings-btn"
+                style={{ marginBottom: 0, minWidth: 100 }}
+                onClick={async () => {
+                  if (!postcode.trim()) return;
+                  setPostcodeLooking(true);
+                  setPostcodeMsg('');
+                  try {
+                    const res = await fetch(`/api/postcode/${encodeURIComponent(postcode.trim())}`);
+                    if (!res.ok) {
+                      setPostcodeMsg('Postcode not found. Please check and try again.');
+                      return;
+                    }
+                    const data = await res.json();
+                    setLaCode(data.local_authority_code || '');
+                    setLaName(data.local_authority_name || '');
+                    setPostcode(data.postcode || postcode);
+                    setPostcodeMsg(`Detected: ${data.local_authority_name}`);
+                  } catch {
+                    setPostcodeMsg('Lookup failed. Please try again.');
+                  } finally {
+                    setPostcodeLooking(false);
+                  }
+                }}
+                disabled={postcodeLooking || !postcode.trim()}
+              >
+                {postcodeLooking ? 'Looking up...' : 'Lookup'}
+              </button>
+            </div>
+
+            {laName && (
+              <p className="settings-msg" style={{ marginTop: 8 }}>
+                Local authority: <strong>{laName}</strong> ({laCode})
+              </p>
+            )}
+            {postcodeMsg && !laName && (
+              <p className="settings-msg" style={{ marginTop: 8 }}>{postcodeMsg}</p>
+            )}
+          </div>
+          </>
         )}
 
         {/* Account Tab */}

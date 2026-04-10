@@ -1347,6 +1347,77 @@ app.post('/api/admin/rss/sources', requireAuth, async (req: Request, res: Respon
   }
 });
 
+// ---------------------------------------------------------------------------
+// Calendar API
+// ---------------------------------------------------------------------------
+app.get('/api/calendar', async (req: Request, res: Response) => {
+  try {
+    const start = req.query.start as string;
+    const end = req.query.end as string;
+    const la = req.query.la as string;
+
+    if (!start || !end) {
+      res.status(400).json({ error: 'start and end query params required' });
+      return;
+    }
+
+    const client = createClient(
+      process.env.SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || ''
+    );
+
+    let query = client
+      .from('calendar_events')
+      .select('*')
+      .gte('start_date', start)
+      .lte('start_date', end)
+      .order('start_date', { ascending: true });
+
+    if (la) {
+      query = query.or(`local_authority_code.is.null,local_authority_code.eq.${la}`);
+    } else {
+      query = query.is('local_authority_code', null);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+    res.json({ events: data || [] });
+  } catch (err) {
+    console.error('Calendar error:', err);
+    res.status(500).json({ error: 'Failed to fetch calendar events' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Postcode lookup proxy
+// ---------------------------------------------------------------------------
+app.get('/api/postcode/:postcode', async (req: Request, res: Response) => {
+  try {
+    const postcode = String(req.params.postcode).replace(/\s+/g, '').toUpperCase();
+    const response = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
+    const data = await response.json() as { status: number; result?: { postcode: string; admin_district: string; codes: { admin_district: string }; region: string; country: string } };
+
+    if (data.status !== 200 || !data.result) {
+      res.status(404).json({ error: 'Postcode not found' });
+      return;
+    }
+
+    res.json({
+      postcode: data.result.postcode,
+      local_authority_name: data.result.admin_district,
+      local_authority_code: data.result.codes.admin_district,
+      region: data.result.region,
+      country: data.result.country,
+    });
+  } catch (err) {
+    console.error('Postcode lookup error:', err);
+    res.status(500).json({ error: 'Postcode lookup failed' });
+  }
+});
+
 // POST /api/admin/team-talk/generate - manually generate a Team Talk briefing
 app.post('/api/admin/team-talk/generate', requireAuth, async (_req: Request, res: Response) => {
   try {
@@ -1455,6 +1526,17 @@ cron.schedule('0 14 * * *', async () => {
     await rssService.generateDrafts(5);
   } catch (err) {
     console.error('[CRON] RSS afternoon run error:', err);
+  }
+}, { timezone: 'Europe/London' });
+
+// Local authority news ingestion - daily at 07:00 UK time
+cron.schedule('0 7 * * *', async () => {
+  console.log('[CRON] Starting local authority news ingestion...');
+  try {
+    const count = await rssService.ingestLocalNews();
+    console.log(`[CRON] Local news ingestion complete. New items: ${count}`);
+  } catch (err) {
+    console.error('[CRON] Local news ingestion error:', err);
   }
 }, { timezone: 'Europe/London' });
 

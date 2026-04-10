@@ -393,18 +393,23 @@ router.put('/profile', jsonParser, async (req, res) => {
       return;
     }
 
-    const { display_name, organisation_name, job_title } = req.body;
+    const { display_name, organisation_name, job_title, business_postcode, local_authority_code, local_authority_name } = req.body;
     const supabase = getAdminClient();
+
+    const updateData: Record<string, unknown> = {
+      id: user.id,
+      display_name: display_name || null,
+      organisation_name: organisation_name || null,
+      job_title: job_title || null,
+      updated_at: new Date().toISOString(),
+    };
+    if (business_postcode !== undefined) updateData.business_postcode = business_postcode || null;
+    if (local_authority_code !== undefined) updateData.local_authority_code = local_authority_code || null;
+    if (local_authority_name !== undefined) updateData.local_authority_name = local_authority_name || null;
 
     const { data, error } = await supabase
       .from('user_profiles')
-      .upsert({
-        id: user.id,
-        display_name: display_name || null,
-        organisation_name: organisation_name || null,
-        job_title: job_title || null,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' })
+      .upsert(updateData, { onConflict: 'id' })
       .select()
       .single();
 

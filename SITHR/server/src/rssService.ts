@@ -542,6 +542,67 @@ Respond in this exact JSON format:
       console.error('[RSS] Daily run failed:', err);
     }
   }
+  // -------------------------------------------------------------------------
+  // Local authority news ingestion
+  // -------------------------------------------------------------------------
+  async ingestLocalNews(): Promise<number> {
+    const { data: feeds } = await this.supabase
+      .from('council_feeds')
+      .select('*')
+      .eq('active', true);
+
+    if (!feeds || feeds.length === 0) return 0;
+
+    let totalNew = 0;
+
+    for (const feed of feeds) {
+      try {
+        const parsed = await parser.parseURL(feed.feed_url);
+
+        for (const item of (parsed.items || [])) {
+          const title = item.title || '';
+          const snippet = item.contentSnippet || item.content || item.summary || '';
+          const text = `${title} ${snippet}`.toLowerCase();
+
+          const employerKeywords = [
+            'business', 'employer', 'employment', 'planning', 'road closure',
+            'consultation', 'grant', 'support', 'rates', 'parking',
+            'licence', 'licensing', 'health', 'safety', 'waste',
+            'council tax', 'commercial', 'enterprise', 'skills',
+            'training', 'apprenticeship', 'recruitment fair',
+          ];
+
+          if (!employerKeywords.some(kw => text.includes(kw))) continue;
+
+          const { error } = await this.supabase
+            .from('calendar_events')
+            .insert({
+              title: title.substring(0, 200),
+              description: snippet.substring(0, 500) || 'Local authority news item.',
+              action_points: 'Check the council website for full details and any deadlines.',
+              category: 'local',
+              start_date: item.pubDate
+                ? new Date(item.pubDate).toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0],
+              source_url: item.link || feed.feed_url,
+              local_authority_code: feed.local_authority_code,
+            });
+
+          if (!error) totalNew++;
+        }
+
+        await this.supabase
+          .from('council_feeds')
+          .update({ last_fetched: new Date().toISOString() })
+          .eq('id', feed.id);
+
+      } catch (err) {
+        console.error(`[LOCAL] Error fetching ${feed.local_authority_name}:`, err);
+      }
+    }
+
+    return totalNew;
+  }
 }
 
 // ---------------------------------------------------------------------------

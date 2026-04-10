@@ -19,6 +19,9 @@ interface Profile {
   display_name: string | null;
   organisation_name: string | null;
   job_title: string | null;
+  business_postcode: string | null;
+  local_authority_code: string | null;
+  local_authority_name: string | null;
 }
 
 interface Subscription {

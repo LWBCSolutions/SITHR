@@ -206,8 +206,11 @@ STRUCTURE (use exactly these markdown headings):
 ## On the Horizon
 2 to 3 sentences. One upcoming legal, regulatory, or economic change that affects UK employers. Prioritise items from the RSS feed. Plain English explanation of what it means and what managers should do about it.
 
+## One for You
+1 to 2 sentences maximum. This is the most important section to get right tonally. It must feel like a friend said it, not a company. Rotate each week between these types: (a) a reframe that shifts perspective, (b) a tiny permission slip, (c) a quote that lands differently when you are tired (not inspirational posters, real words from real people), or (d) a small win prompt. Never preachy. Never corporate. Never wellness jargon. Just one honest sentence that makes a tired person feel seen, not lectured. Examples of the right tone: "If you managed a difficult conversation this week, even badly, you still did what most people avoid entirely. That counts." or "Name one thing you handled well this week that nobody noticed. Now notice it yourself."
+
 RULES:
-- Total word count: 300 to 400 words. Managers should read this in 2 to 3 minutes.
+- Total word count: 320 to 420 words. Managers should read this in 2 to 3 minutes.
 - Tone: warm, direct, accessible. Write as a helpful colleague, not a textbook.
 - NEVER use em dashes. Use commas, semicolons, colons, or full stops instead.
 - Do not use double hyphens as dashes.
@@ -220,7 +223,7 @@ RULES:
 Return your response as JSON with these fields:
 {
   "summary": "One sentence summary of this week's briefing (under 120 characters)",
-  "content": "The full markdown content with all 6 sections"
+  "content": "The full markdown content with all 7 sections"
 }
 
 Return ONLY valid JSON, no markdown code fences, no explanation.`;
@@ -264,7 +267,6 @@ Return ONLY valid JSON, no markdown code fences, no explanation.`;
     const { data, error } = await this.supabase
       .from('article_drafts')
       .insert({
-        feed_item_id: `team-talk-${briefing.slug}`,
         title: briefing.title,
         slug: briefing.slug,
         category: 'teamtalk',

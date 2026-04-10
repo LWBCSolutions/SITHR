@@ -251,6 +251,15 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
             </svg>
             <span>HR Tools</span>
           </a>
+          <a href="/calendar" className="sidebar-nav-btn" onClick={(e) => { e.preventDefault(); window.location.href = '/calendar'; }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#2D7DD2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="12" height="11" rx="1.5" />
+              <line x1="2" y1="7" x2="14" y2="7" />
+              <line x1="5" y1="1" x2="5" y2="5" />
+              <line x1="11" y1="1" x2="11" y2="5" />
+            </svg>
+            <span>Calendar</span>
+          </a>
           <a href="/settings" className="sidebar-nav-btn" onClick={(e) => { e.preventDefault(); window.location.href = '/settings'; }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#2D7DD2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="8" cy="8" r="3" />
