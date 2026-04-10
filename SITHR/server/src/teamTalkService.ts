@@ -108,6 +108,37 @@ class TeamTalkService {
     });
   }
 
+  // Get recent RSS feed items for live news context
+  async getRecentRssItems(days: number = 7): Promise<{ title: string; link: string; description: string; pub_date: string }[]> {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    const { data } = await this.supabase
+      .from('rss_feed_items')
+      .select('title, link, description, pub_date')
+      .gte('ingested_at', since.toISOString())
+      .order('pub_date', { ascending: false })
+      .limit(15);
+
+    return data || [];
+  }
+
+  // Get recently published article titles to avoid repeating topics
+  async getRecentPublishedTopics(days: number = 14): Promise<string[]> {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    const { data } = await this.supabase
+      .from('article_drafts')
+      .select('title')
+      .eq('status', 'published')
+      .gte('created_at', since.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    return (data || []).map(d => d.title);
+  }
+
   // Generate the weekly briefing content via AI
   async generateWeeklyBriefing(): Promise<{
     title: string;
@@ -115,7 +146,12 @@ class TeamTalkService {
     summary: string;
     content: string;
   }> {
-    const upcomingEvents = this.getUpcomingEvents(2);
+    const [upcomingEvents, recentItems, recentTopics] = await Promise.all([
+      this.getUpcomingEvents(2),
+      this.getRecentRssItems(7),
+      this.getRecentPublishedTopics(14),
+    ]);
+
     const now = new Date();
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
@@ -129,6 +165,14 @@ class TeamTalkService {
       ? upcomingEvents.map(e => `- ${e.name} (${e.date}${e.endDate ? ' to ' + e.endDate : ''}): ${e.description}`).join('\n')
       : '- No specific awareness events in the next two weeks.';
 
+    const newsBlock = recentItems.length > 0
+      ? recentItems.map(item => `- ${item.title} (${item.pub_date?.slice(0, 10) || 'recent'}): ${(item.description || '').slice(0, 200)}`).join('\n')
+      : '- No recent RSS items available.';
+
+    const avoidBlock = recentTopics.length > 0
+      ? recentTopics.map(t => `- ${t}`).join('\n')
+      : '- None.';
+
     const prompt = `You are the editorial writer for SIT-HR Advisory, a UK employment law and HR platform for small and medium employers. You write a weekly management briefing called "Team Talk".
 
 Write this week's Team Talk briefing. The date is ${weekStr}.
@@ -136,43 +180,54 @@ Write this week's Team Talk briefing. The date is ${weekStr}.
 UPCOMING AWARENESS EVENTS (next 2 weeks):
 ${eventsBlock}
 
+THIS WEEK'S HR AND EMPLOYMENT LAW DEVELOPMENTS (from RSS feeds):
+${newsBlock}
+
+TOPICS ALREADY COVERED IN PUBLISHED ARTICLES (do NOT repeat these):
+${avoidBlock}
+
 STRUCTURE (use exactly these markdown headings):
 
 ## This Week's Awareness
 2 to 3 sentences. Mention the most relevant upcoming awareness dates, cultural events, or religious observances from the list above. Tell managers what it is and suggest one practical thing they can do (acknowledge it in a team meeting, check if anyone needs adjustments, etc.).
 
 ## Did You Know?
-2 to 3 sentences. One surprising or useful fact about UK employment law, workplace culture, or people management. Make it an "I didn't know that" moment. Cite the legal source briefly if relevant (e.g. "under the Equality Act 2010").
+2 to 3 sentences. One surprising or useful fact about UK employment law, workplace culture, or people management. Make it an "I didn't know that" moment. Prioritise real news from the RSS feed above over generic knowledge. If a significant tribunal decision, new legislation, or ACAS/CIPD guidance appeared this week, reference it here. Cite the legal source briefly if relevant.
 
 ## Quick Skill
 2 to 4 sentences. One practical micro-skill for managers. Draw from people management psychology: the 3-second pause before responding, naming emotions to defuse them ("It sounds like you're frustrated"), separating the person from the behaviour, checking in without interrogating ("How are things going?" not "Is everything OK?"), the warmth-and-firmness balance, active listening, the window of tolerance. Pick one technique and explain how to use it in a real scenario.
+
+## Business Pulse
+2 to 3 sentences. One economic or cost factor affecting UK employers right now. Draw from the RSS feed items if any cover: Bank of England interest rate changes, ONS inflation or wage growth data, NI contribution changes, energy price cap shifts, pension auto-enrolment threshold updates, seasonal budget pressures, NLW/NMW uprating impact. Write in plain English with a focus on what it means for SME budgets and staffing decisions. If no economic data is available from the feed, use your knowledge of current UK economic conditions.
 
 ## Conversation Starter
 1 to 2 sentences. A question managers can drop into a team meeting or one-to-one. Format it as a markdown blockquote. Keep it low-pressure and open-ended. Examples of the tone: "What's one thing that made your work easier this week?" or "If you could change one thing about how we communicate as a team, what would it be?"
 
 ## On the Horizon
-2 to 3 sentences. One upcoming legal change, policy trend, or regulatory development that affects UK employers. Plain English explanation of what it means and what managers should do about it.
+2 to 3 sentences. One upcoming legal, regulatory, or economic change that affects UK employers. Prioritise items from the RSS feed. Plain English explanation of what it means and what managers should do about it.
 
 RULES:
-- Total word count: 250 to 350 words. Managers should read this in 2 to 3 minutes.
+- Total word count: 300 to 400 words. Managers should read this in 2 to 3 minutes.
 - Tone: warm, direct, accessible. Write as a helpful colleague, not a textbook.
 - NEVER use em dashes. Use commas, semicolons, colons, or full stops instead.
 - Do not use double hyphens as dashes.
 - Do not use bullet points within sections (except the Conversation Starter blockquote). Use flowing prose.
 - Each section should feel complete on its own.
 - UK English spelling throughout.
+- Prioritise real, current news from the RSS feed over generic knowledge wherever possible.
+- Do NOT repeat topics from the "already covered" list above.
 
 Return your response as JSON with these fields:
 {
   "summary": "One sentence summary of this week's briefing (under 120 characters)",
-  "content": "The full markdown content with all 5 sections"
+  "content": "The full markdown content with all 6 sections"
 }
 
 Return ONLY valid JSON, no markdown code fences, no explanation.`;
 
     const response = await this.anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
+      max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     });
 

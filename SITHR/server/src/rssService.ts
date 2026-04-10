@@ -236,6 +236,18 @@ export class RssService {
       'occupational health', 'fit note',
       'fair work agency', 'employment rights act',
       'annual leave', 'holiday pay', 'working time',
+      // Economic and business keywords
+      'interest rate', 'inflation', 'cpi', 'rpi', 'cost of living',
+      'national insurance', 'employer nic', 'ni contributions',
+      'energy price', 'price cap', 'utility costs',
+      'pension', 'auto-enrolment', 'auto enrolment', 'workplace pension',
+      'budget', 'fiscal', 'tax threshold', 'personal allowance',
+      'national living wage', 'national minimum wage', 'nlw', 'nmw',
+      'apprenticeship levy', 'employment allowance',
+      'business rates', 'small business',
+      'labour market', 'unemployment', 'vacancy', 'recruitment',
+      'wage growth', 'pay review', 'pay award', 'salary benchmark',
+      'skills shortage', 'workforce planning',
     ];
     return keywords.some((kw) => text.includes(kw));
   }
@@ -304,7 +316,7 @@ RULES:
 - Keep the tone professional but accessible
 - Do NOT use emdashes (the character typed as two hyphens or the long dash character) anywhere in your output. Use commas, semicolons, colons, or full stops instead.
 - Include a disclaimer at the end: "This article provides general guidance based on the law as understood at the date of publication. It is not legal advice. Seek qualified legal advice for your specific circumstances."
-- If the item is not relevant to UK employment law or HR, respond with exactly: NOT_RELEVANT
+- If the item is not relevant to UK employers (employment law, HR, people management, workplace economics, business costs, tax, pensions, or labour market data), respond with exactly: NOT_RELEVANT
 - Maximum 800 words for the article content
 - The summary should be 1 to 2 sentences, maximum 200 characters
 
