@@ -129,8 +129,13 @@ export default function DocumentLibrary() {
       </Link>
 
       <Helmet>
-        <title>Document Library - HR Document Templates</title>
-        <meta name="description" content="HR document templates for workplace management. Browse and download employment law guidance documents." />
+        <title>HR Document Templates | SIT-HR Advisory</title>
+        <meta name="description" content="Professional HR document templates for UK employers. Letters for absence, disciplinary, grievance, capability, and general workplace management." />
+        <link rel="canonical" href="https://sithr.lwbc.ltd/documents" />
+        <meta property="og:title" content="HR Document Templates" />
+        <meta property="og:description" content="Professional HR document templates for UK employers." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://sithr.lwbc.ltd/documents" />
       </Helmet>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>

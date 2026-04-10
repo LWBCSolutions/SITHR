@@ -72,8 +72,13 @@ export default function NewsList() {
       </Link>
 
       <Helmet>
-        <title>News & Updates - Employment Law Guidance</title>
-        <meta name="description" content="Employment law changes, HR guidance, and workplace management updates." />
+        <title>News and Updates | SIT-HR Advisory</title>
+        <meta name="description" content="UK employment law changes, tribunal decisions, HR guidance, and compliance reminders for employers." />
+        <link rel="canonical" href="https://sithr.lwbc.ltd/news" />
+        <meta property="og:title" content="Employment Law News and Updates" />
+        <meta property="og:description" content="UK employment law changes, tribunal decisions, HR guidance, and compliance reminders for employers." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://sithr.lwbc.ltd/news" />
       </Helmet>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>

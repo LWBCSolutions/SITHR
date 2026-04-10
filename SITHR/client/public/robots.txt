@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /news
+Allow: /news/
+Allow: /documents
+Allow: /privacy
+Allow: /terms
+Allow: /acceptable-use
+Allow: /rss.xml
+Allow: /feed
+
+Disallow: /admin
+Disallow: /settings
+Disallow: /api/
+
+Sitemap: https://sithr.lwbc.ltd/sitemap.xml

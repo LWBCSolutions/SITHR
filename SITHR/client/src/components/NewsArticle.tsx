@@ -62,11 +62,22 @@ export default function NewsArticle() {
     <motion.div className="news-article-page" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       {article && (
         <Helmet>
-          <title>{article.title} - Employment Law Guidance</title>
-          <meta name="description" content={article.summary.substring(0, 160)} />
+          <title>{article.title} | SIT-HR Advisory</title>
+          <meta name="description" content={article.summary?.substring(0, 160) || `${article.title} - UK employment law guidance.`} />
+          <link rel="canonical" href={`https://sithr.lwbc.ltd/news/${article.slug}`} />
           <meta property="og:title" content={article.title} />
-          <meta property="og:description" content={article.summary} />
+          <meta property="og:description" content={article.summary || article.title} />
           <meta property="og:type" content="article" />
+          <meta property="og:url" content={`https://sithr.lwbc.ltd/news/${article.slug}`} />
+          <meta property="og:image" content="https://sithr.lwbc.ltd/og-default.svg" />
+          <meta property="og:site_name" content="SIT-HR Advisory" />
+          <meta property="og:locale" content="en_GB" />
+          <meta property="article:published_time" content={article.created_at} />
+          <meta property="article:section" content={article.category || 'Employment Law'} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={article.title} />
+          <meta name="twitter:description" content={article.summary?.substring(0, 160) || article.title} />
+          <meta name="twitter:image" content="https://sithr.lwbc.ltd/og-default.svg" />
         </Helmet>
       )}
 

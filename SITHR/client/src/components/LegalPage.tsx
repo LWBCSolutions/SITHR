@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import PageFooter from './PageFooter';
 
 const LEGAL_FOOTER = 'LWBC Solutions Ltd - Company No. 16771338 - 3rd Floor, 86-90 Paul Street, London, England, EC2A 4NE';
@@ -8,8 +9,17 @@ interface LegalPageProps {
 }
 
 export default function LegalPage({ page }: LegalPageProps) {
+  const pageTitles: Record<string, string> = { privacy: 'Privacy Policy', terms: 'Terms of Service', 'acceptable-use': 'Acceptable Use Policy' };
+  const pageTitle = pageTitles[page] || 'Legal';
+
   return (
     <div className="legal-page">
+      <Helmet>
+        <title>{pageTitle} | SIT-HR Advisory</title>
+        <meta name="description" content={`SIT-HR Advisory ${pageTitle.toLowerCase()}. Read our ${pageTitle.toLowerCase()} for using our HR advisory platform.`} />
+        <link rel="canonical" href={`https://sithr.lwbc.ltd/${page}`} />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Link to="/" className="legal-back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="14" y1="8" x2="2" y2="8" />

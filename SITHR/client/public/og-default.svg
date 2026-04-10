@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1C1C1E"/>
+      <stop offset="100%" stop-color="#2D3748"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="100" y="260" font-family="Georgia, serif" font-size="64" font-weight="700" fill="white">SIT</text>
+  <text x="230" y="260" font-family="Georgia, serif" font-size="64" font-weight="700" fill="#2D7DD2">-HR</text>
+  <text x="100" y="320" font-family="sans-serif" font-size="28" fill="rgba(255,255,255,0.7)">UK Employment Law Guidance</text>
+  <rect x="100" y="350" width="60" height="3" fill="#2D7DD2" rx="1.5"/>
+  <text x="100" y="420" font-family="sans-serif" font-size="20" fill="rgba(255,255,255,0.5)">sithr.lwbc.ltd</text>
+</svg>

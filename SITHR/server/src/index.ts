@@ -16,6 +16,7 @@ import multer from 'multer';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require('pdf-parse');
 import mammoth from 'mammoth';
+import compression from 'compression';
 import stripeRouter from './stripe';
 import { PLAN_LIMITS, type PlanName } from './planLimits';
 import { documentLibrary } from './documentLibrary';
@@ -175,7 +176,20 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
+app.use(compression());
 app.use(cors());
+
+// Normalise trailing slashes (redirect /news/ to /news)
+app.use((req, res, next) => {
+  if (req.path !== '/' && req.path.endsWith('/')) {
+    const query = req.url.slice(req.path.length);
+    const safePath = req.path.slice(0, -1).replace(/\/+/g, '/');
+    res.redirect(301, safePath + query);
+    return;
+  }
+  next();
+});
+
 app.use('/api/stripe', stripeRouter);
 app.use(express.json({ limit: '2mb' }));
 
@@ -403,6 +417,11 @@ app.get('/api/documents/:id', (req: Request, res: Response) => {
 
 // Serve static files in production
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
+// Cache Vite hashed assets aggressively
+app.use('/assets', express.static(path.join(clientDistPath, 'assets'), {
+  maxAge: '1y',
+  immutable: true,
+}));
 app.use(express.static(clientDistPath));
 
 // ---------------------------------------------------------------------------
@@ -1430,14 +1449,244 @@ app.post('/api/admin/team-talk/generate', requireAuth, async (_req: Request, res
 });
 
 // ---------------------------------------------------------------------------
-// Catch-all: serve SPA index.html for non-API GET requests
+// Dynamic sitemap.xml
 // ---------------------------------------------------------------------------
-app.get('*', (_req: Request, res: Response) => {
-  const indexPath = path.join(clientDistPath, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
+app.get('/sitemap.xml', async (_req: Request, res: Response) => {
+  try {
+    const client = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: articles, error } = await client
+      .from('news_articles')
+      .select('slug, published_at, updated_at')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+
+    if (error) throw error;
+
+    const siteUrl = process.env.SITE_URL || 'https://sithr.lwbc.ltd';
+    const staticPages = [
+      { loc: '/', priority: '1.0', changefreq: 'daily' },
+      { loc: '/news', priority: '0.9', changefreq: 'daily' },
+      { loc: '/documents', priority: '0.7', changefreq: 'weekly' },
+      { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
+      { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
+      { loc: '/acceptable-use', priority: '0.3', changefreq: 'yearly' },
+    ];
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const page of staticPages) {
+      xml += `  <url>\n    <loc>${siteUrl}${page.loc}</loc>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
+    }
+    if (articles) {
+      for (const article of articles) {
+        const lastmod = article.updated_at || article.published_at;
+        const dateStr = new Date(lastmod).toISOString().split('T')[0];
+        xml += `  <url>\n    <loc>${siteUrl}/news/${article.slug}</loc>\n    <lastmod>${dateStr}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+      }
+    }
+    xml += `</urlset>`;
+
+    res.set('Content-Type', 'application/xml');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    console.error('Sitemap generation error:', err);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Server-side meta tag injection for SEO
+// ---------------------------------------------------------------------------
+const htmlTemplatePath = path.join(clientDistPath, 'index.html');
+const htmlTemplate = fs.existsSync(htmlTemplatePath) ? fs.readFileSync(htmlTemplatePath, 'utf-8') : '';
+
+async function getMetaForRoute(url: string): Promise<{
+  title: string; description: string; ogTitle: string; ogDescription: string;
+  ogType: string; ogUrl: string; ogImage: string; canonical: string; jsonLd?: string;
+}> {
+  const siteUrl = process.env.SITE_URL || 'https://sithr.lwbc.ltd';
+  const defaultImage = `${siteUrl}/og-default.svg`;
+  const defaults = {
+    title: 'SIT-HR Advisory | UK Employment Law Guidance',
+    description: 'Expert HR advisory for UK employers. Employment law guidance, document templates, compliance tools, and news updates for SMEs and adult social care.',
+    ogTitle: 'SIT-HR Advisory',
+    ogDescription: 'Expert HR advisory for UK employers. Employment law guidance, compliance tools, and document templates.',
+    ogType: 'website',
+    ogUrl: `${siteUrl}${url}`,
+    ogImage: defaultImage,
+    canonical: `${siteUrl}${url}`,
+  };
+
+  const client = createClient(supabaseUrl, supabaseAnonKey);
+
+  // News article page
+  const articleMatch = url.match(/^\/news\/([^/?]+)/);
+  if (articleMatch) {
+    const slug = articleMatch[1];
+    const { data: article } = await client
+      .from('news_articles')
+      .select('title, summary, category, published_at')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .single();
+
+    if (article) {
+      const description = article.summary
+        ? article.summary.substring(0, 160)
+        : `${article.title} - UK employment law guidance from SIT-HR Advisory.`;
+
+      const articleLd = JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'NewsArticle',
+        headline: article.title, description,
+        datePublished: article.published_at,
+        publisher: { '@type': 'Organization', name: 'SIT-HR Advisory', url: siteUrl },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/news/${slug}` },
+        articleSection: article.category || 'Employment Law', inLanguage: 'en-GB',
+      });
+      const breadcrumbLd = JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+          { '@type': 'ListItem', position: 2, name: 'News and Updates', item: `${siteUrl}/news` },
+          { '@type': 'ListItem', position: 3, name: article.title, item: `${siteUrl}/news/${slug}` },
+        ],
+      });
+
+      return {
+        title: `${article.title} | SIT-HR Advisory`, description,
+        ogTitle: article.title, ogDescription: description, ogType: 'article',
+        ogUrl: `${siteUrl}/news/${slug}`, ogImage: defaultImage,
+        canonical: `${siteUrl}/news/${slug}`,
+        jsonLd: `${articleLd}</script>\n    <script type="application/ld+json">${breadcrumbLd}`,
+      };
+    }
+  }
+
+  // News listing
+  if (url === '/news') {
+    const { data: recentArticles } = await client
+      .from('news_articles')
+      .select('title, slug')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(10);
+
+    let jsonLd: string | undefined;
+    if (recentArticles && recentArticles.length > 0) {
+      jsonLd = JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'ItemList',
+        itemListElement: recentArticles.map((a: { title: string; slug: string }, i: number) => ({
+          '@type': 'ListItem', position: i + 1, url: `${siteUrl}/news/${a.slug}`, name: a.title,
+        })),
+      });
+    }
+    return {
+      ...defaults,
+      title: 'News and Updates | SIT-HR Advisory',
+      description: 'UK employment law changes, tribunal decisions, HR guidance, and compliance reminders for employers.',
+      ogTitle: 'Employment Law News and Updates',
+      ogDescription: 'UK employment law changes, tribunal decisions, HR guidance, and compliance reminders for employers.',
+      ogUrl: `${siteUrl}/news`, canonical: `${siteUrl}/news`, jsonLd,
+    };
+  }
+
+  if (url === '/documents') {
+    return { ...defaults, title: 'HR Document Templates | SIT-HR Advisory',
+      description: 'Professional HR document templates for UK employers. Letters for absence, disciplinary, grievance, capability, and general workplace management.',
+      ogTitle: 'HR Document Templates', ogDescription: 'Professional HR document templates for UK employers.',
+      ogUrl: `${siteUrl}/documents`, canonical: `${siteUrl}/documents` };
+  }
+  if (url === '/privacy') return { ...defaults, title: 'Privacy Policy | SIT-HR Advisory', description: 'SIT-HR Advisory privacy policy.', ogUrl: `${siteUrl}/privacy`, canonical: `${siteUrl}/privacy` };
+  if (url === '/terms') return { ...defaults, title: 'Terms of Service | SIT-HR Advisory', description: 'SIT-HR Advisory terms of service.', ogUrl: `${siteUrl}/terms`, canonical: `${siteUrl}/terms` };
+  if (url === '/acceptable-use') return { ...defaults, title: 'Acceptable Use Policy | SIT-HR Advisory', description: 'SIT-HR Advisory acceptable use policy.', ogUrl: `${siteUrl}/acceptable-use`, canonical: `${siteUrl}/acceptable-use` };
+
+  return defaults;
+}
+
+function injectMeta(html: string, meta: Awaited<ReturnType<typeof getMetaForRoute>>): string {
+  const siteUrl = process.env.SITE_URL || 'https://sithr.lwbc.ltd';
+  const orgSchema = JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'Organization',
+    name: 'SIT-HR Advisory', url: siteUrl,
+    description: 'Expert HR advisory for UK employers. Employment law guidance, compliance tools, and document templates for SMEs and adult social care.',
+  });
+  const websiteSchema = JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'WebSite',
+    name: 'SIT-HR Advisory', url: siteUrl,
+    potentialAction: { '@type': 'SearchAction',
+      target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/news?q={search_term_string}` },
+      'query-input': 'required name=search_term_string',
+    },
+  });
+
+  let metaTags = `
+    <title>${meta.title}</title>
+    <meta name="description" content="${meta.description.replace(/"/g, '&quot;')}" />
+    <link rel="canonical" href="${meta.canonical}" />
+    <meta property="og:title" content="${meta.ogTitle.replace(/"/g, '&quot;')}" />
+    <meta property="og:description" content="${meta.ogDescription.replace(/"/g, '&quot;')}" />
+    <meta property="og:type" content="${meta.ogType}" />
+    <meta property="og:url" content="${meta.ogUrl}" />
+    <meta property="og:image" content="${meta.ogImage}" />
+    <meta property="og:site_name" content="SIT-HR Advisory" />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${meta.ogTitle.replace(/"/g, '&quot;')}" />
+    <meta name="twitter:description" content="${meta.ogDescription.replace(/"/g, '&quot;')}" />
+    <meta name="twitter:image" content="${meta.ogImage}" />
+    <script type="application/ld+json">${orgSchema}</script>
+    <script type="application/ld+json">${websiteSchema}</script>`;
+
+  if (meta.jsonLd) {
+    metaTags += `\n    <script type="application/ld+json">${meta.jsonLd}</script>`;
+  }
+
+  // Replace existing title and description, then inject before </head>
+  let result = html.replace(/<title>[^<]*<\/title>/, '');
+  result = result.replace(/<meta name="description"[^>]*\/>/, '');
+  return result.replace('</head>', `${metaTags}\n  </head>`);
+}
+
+// 404 for non-existent article slugs
+app.get('/news/:slug', async (req: Request, res: Response, next) => {
+  try {
+    const client = createClient(supabaseUrl, supabaseAnonKey);
+    const { data } = await client
+      .from('news_articles')
+      .select('id')
+      .eq('slug', req.params.slug)
+      .eq('status', 'published')
+      .single();
+
+    if (!data) {
+      const meta = await getMetaForRoute('/news');
+      meta.title = 'Article Not Found | SIT-HR Advisory';
+      meta.description = 'This article could not be found. Browse our latest employment law news and updates.';
+      const html = injectMeta(htmlTemplate, meta);
+      res.status(404).send(html);
+      return;
+    }
+    next();
+  } catch {
+    next();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Catch-all: serve SPA with injected meta tags
+// ---------------------------------------------------------------------------
+app.get('*', async (req: Request, res: Response) => {
+  if (!htmlTemplate) {
     res.status(404).json({ error: 'Client build not found' });
+    return;
+  }
+  try {
+    const meta = await getMetaForRoute(req.path);
+    const html = injectMeta(htmlTemplate, meta);
+    res.send(html);
+  } catch (err) {
+    console.error('Meta injection error:', err);
+    res.send(htmlTemplate);
   }
 });
 
