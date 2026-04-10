@@ -2916,6 +2916,7 @@ svg {
 .news-card__badge--policy { background: #FAEEDA; color: #854F0B; }
 .news-card__badge--guidance { background: #EAF3DE; color: #3B6D11; }
 .news-card__badge--reminder { background: #F5F5F5; color: #666; }
+.news-card__badge--teamtalk { background: #E8F5E9; color: #2E7D32; }
 .news-card__badge--pinned { background: var(--blue-accent); color: white; }
 .news-card__badge--important { background: #A32D2D; color: white; }
 
@@ -4857,6 +4858,27 @@ svg {
   }
 }
 
+/* Team Talk print button */
+.team-talk-print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.team-talk-print-btn:hover {
+  background: #EBEBEB;
+}
+
 /* === 37. Print Styles === */
 @media print {
   .sidebar,
@@ -4905,6 +4927,56 @@ svg {
   .tools-page__panel {
     border: 1px solid #ccc;
     box-shadow: none;
+  }
+
+  /* Team Talk print styles */
+  .legal-back-link,
+  .news-article__meta,
+  .team-talk-print-btn,
+  .news-article__disclaimer,
+  .page-footer {
+    display: none !important;
+  }
+
+  .news-article-page {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .news-article {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .news-article__title {
+    font-size: 18pt;
+    margin-bottom: 8pt;
+    color: #1C1C1E;
+  }
+
+  .news-article__body h2 {
+    font-size: 13pt;
+    margin-top: 14pt;
+    margin-bottom: 4pt;
+    color: #2D7DD2;
+    border-bottom: 0.5pt solid #E0E0E0;
+    padding-bottom: 3pt;
+  }
+
+  .news-article__body p {
+    margin-bottom: 6pt;
+    orphans: 3;
+    widows: 3;
+  }
+
+  .news-article__body blockquote {
+    border-left: 2pt solid #2D7DD2;
+    padding-left: 10pt;
+    margin: 8pt 0;
+    font-style: italic;
+    color: #333;
   }
 }
 

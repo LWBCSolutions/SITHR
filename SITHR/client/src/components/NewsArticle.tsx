@@ -85,6 +85,20 @@ export default function NewsArticle() {
           <div className="news-article__important-banner">Important Update</div>
         )}
         <h1 className="news-article__title">{article.title}</h1>
+        {article.category === 'teamtalk' && (
+          <button
+            className="team-talk-print-btn"
+            onClick={() => window.print()}
+            aria-label="Print this briefing"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="10" width="8" height="4" />
+              <path d="M4 10V2h8v8" />
+              <rect x="2" y="6" width="12" height="6" rx="1" />
+            </svg>
+            Print for team meeting
+          </button>
+        )}
         <div className="news-article__divider" />
         <div className="news-article__body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleanContent}</ReactMarkdown>

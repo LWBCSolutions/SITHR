@@ -20,6 +20,7 @@ import stripeRouter from './stripe';
 import { PLAN_LIMITS, type PlanName } from './planLimits';
 import { documentLibrary } from './documentLibrary';
 import { rssService } from './rssService';
+import { teamTalkService } from './teamTalkService';
 
 // ---------------------------------------------------------------------------
 // Load and combine system prompt at startup
@@ -1248,6 +1249,17 @@ app.post('/api/admin/rss/sources', requireAuth, async (req: Request, res: Respon
   }
 });
 
+// POST /api/admin/team-talk/generate - manually generate a Team Talk briefing
+app.post('/api/admin/team-talk/generate', requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const draftId = await teamTalkService.createDraft();
+    res.json({ success: true, draftId, message: 'Team Talk draft generated' });
+  } catch (err) {
+    console.error('Team Talk generation error:', err);
+    res.status(500).json({ error: 'Failed to generate Team Talk' });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Catch-all: serve SPA index.html for non-API GET requests
 // ---------------------------------------------------------------------------
@@ -1312,6 +1324,17 @@ async function sendWeeklyReport() {
     console.error('Weekly report error:', err);
   }
 }
+
+// Every Monday at 05:30 UK time - generate weekly Team Talk briefing
+cron.schedule('30 5 * * 1', async () => {
+  console.log('[CRON] Generating weekly Team Talk briefing...');
+  try {
+    const draftId = await teamTalkService.createDraft();
+    console.log(`[CRON] Team Talk draft created: ${draftId}`);
+  } catch (err) {
+    console.error('[CRON] Team Talk generation error:', err);
+  }
+}, { timezone: 'Europe/London' });
 
 // Every Monday at 08:00 UK time
 cron.schedule('0 8 * * 1', sendWeeklyReport, { timezone: 'Europe/London' });

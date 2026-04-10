@@ -76,6 +76,8 @@ export default function AdminPanel() {
   // Actions state
   const [ingestionRunning, setIngestionRunning] = useState(false);
   const [ingestionMsg, setIngestionMsg] = useState('');
+  const [teamTalkRunning, setTeamTalkRunning] = useState(false);
+  const [teamTalkMsg, setTeamTalkMsg] = useState('');
 
   // Fetch drafts
   const fetchDrafts = async () => {
@@ -207,6 +209,26 @@ export default function AdminPanel() {
       setIngestionMsg('Ingestion failed. Please check the server logs.');
     } finally {
       setIngestionRunning(false);
+    }
+  };
+
+  const handleGenerateTeamTalk = async () => {
+    setTeamTalkRunning(true);
+    setTeamTalkMsg('');
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/team-talk/generate', {
+        method: 'POST',
+        headers,
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      const data = await res.json();
+      setTeamTalkMsg(data.message || 'Team Talk draft generated successfully.');
+      await fetchDrafts();
+    } catch {
+      setTeamTalkMsg('Failed to generate Team Talk. Please check the server logs.');
+    } finally {
+      setTeamTalkRunning(false);
     }
   };
 
@@ -489,6 +511,32 @@ export default function AdminPanel() {
                   06:00 and 14:00 UK time daily. Use the button above only if you need to
                   trigger an immediate run outside the scheduled times.
                 </div>
+              </div>
+
+              <div className="settings-section" style={{ marginTop: 24 }}>
+                <h2 className="settings-section__title">Team Talk</h2>
+                <p className="settings-section__desc">
+                  Manually generate a weekly Team Talk briefing. This creates a draft
+                  for review in the Drafts tab. Briefings are also auto-generated
+                  every Monday at 05:30.
+                </p>
+                <button
+                  className="settings-btn admin-btn--run"
+                  onClick={handleGenerateTeamTalk}
+                  disabled={teamTalkRunning}
+                >
+                  {teamTalkRunning ? (
+                    <>
+                      <span className="admin-spinner" />
+                      Generating...
+                    </>
+                  ) : (
+                    'Generate Team Talk'
+                  )}
+                </button>
+                {teamTalkMsg && (
+                  <p className="settings-msg" style={{ marginTop: 12 }}>{teamTalkMsg}</p>
+                )}
               </div>
             </div>
           )}

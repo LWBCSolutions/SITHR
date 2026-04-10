@@ -106,7 +106,7 @@ export default function NewsList() {
           <div className="news-page__tabs">
             {availableCategories.map(cat => (
               <button key={cat} className={`news-page__tab ${activeCategory === cat ? 'news-page__tab--active' : ''}`} onClick={() => setActiveCategory(cat)}>
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {{ all: 'All', legislation: 'Legislation', tribunal: 'Tribunal', policy: 'Policy', guidance: 'Guidance', reminder: 'Reminder', teamtalk: 'Team Talk' }[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
           </div>
