@@ -2,7 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import PageFooter from './PageFooter';
+import { getAuthHeaders } from '../lib/api';
 
 // ============================================================
 // STATUTORY RATES - April 2026 (England & Wales)
@@ -45,7 +48,8 @@ type ToolId =
   | 'absence-cost'
   | 'acas-deadlines'
   | 'oncall-classifier'
-  | 'phased-return';
+  | 'phased-return'
+  | 'policy-review';
 
 interface ToolDefinition {
   id: ToolId;
@@ -135,6 +139,13 @@ const TOOLS: ToolDefinition[] = [
     category: 'compliance',
     icon: 'calendar',
   },
+  {
+    id: 'policy-review',
+    title: 'Policy Review',
+    subtitle: 'Upload a policy for AI compliance analysis',
+    category: 'compliance',
+    icon: 'document',
+  },
 ];
 
 // ============================================================
@@ -157,6 +168,8 @@ function ToolIcon({ type }: { type: string }) {
       return <svg {...props}><path d="M10 2 L18 17 H2 Z" /><line x1="10" y1="8" x2="10" y2="12" /><circle cx="10" cy="15" r="0.5" fill="currentColor" /></svg>;
     case 'check':
       return <svg {...props}><rect x="2" y="2" width="16" height="16" rx="2" /><polyline points="6,10 9,13 14,7" /></svg>;
+    case 'document':
+      return <svg {...props}><path d="M4 2h8l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2z" /><polyline points="12,2 12,6 16,6" /><line x1="6" y1="10" x2="14" y2="10" /><line x1="6" y1="13" x2="14" y2="13" /><line x1="6" y1="16" x2="10" y2="16" /></svg>;
     default:
       return <svg {...props}><rect x="2" y="2" width="16" height="16" rx="2" /></svg>;
   }
@@ -1468,6 +1481,313 @@ function PhasedReturnCalculator() {
 }
 
 // ============================================================
+// POLICY REVIEW TOOL (AI-powered, requires backend)
+// ============================================================
+
+function PolicyReviewTool() {
+  const [file, setFile] = useState<File | null>(null);
+  const [orgType, setOrgType] = useState('supported-living');
+  const [staffCount, setStaffCount] = useState('');
+  const [concerns, setConcerns] = useState('');
+  const [agreedWays, setAgreedWays] = useState('');
+  const [showContext, setShowContext] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [review, setReview] = useState('');
+  const [error, setError] = useState('');
+  const reviewRef = useRef<HTMLDivElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    const ext = selected.name.split('.').pop()?.toLowerCase();
+    if (ext !== 'pdf' && ext !== 'docx') {
+      setError('Please upload a PDF or DOCX file.');
+      return;
+    }
+    if (selected.size > 10 * 1024 * 1024) {
+      setError('File must be under 10MB.');
+      return;
+    }
+
+    setFile(selected);
+    setError('');
+    setReview('');
+  };
+
+  const handleSubmit = async () => {
+    if (!file) return;
+    setLoading(true);
+    setExtracting(true);
+    setError('');
+    setReview('');
+
+    try {
+      // Step 1: Extract text from the uploaded document
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const extractRes = await fetch('/api/extract-document', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!extractRes.ok) {
+        throw new Error('Failed to extract document text. Please try a different file.');
+      }
+
+      const { text: documentText } = await extractRes.json();
+      setExtracting(false);
+
+      if (!documentText || documentText.trim().length < 50) {
+        throw new Error('Could not extract enough text from the document. Please check the file is not empty or image-only.');
+      }
+
+      // Step 2: Send to policy review API (streaming)
+      const headers = await getAuthHeaders();
+      const response = await fetch('/api/policy-review', {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          documentText,
+          fileName: file.name,
+          context: {
+            orgType,
+            staffCount: staffCount || 'Not specified',
+            concerns: concerns || 'None specified',
+            agreedWays: agreedWays || 'None specified',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Policy review failed. Please try again.');
+      }
+
+      // Stream the response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error('No response stream.');
+
+      let fullText = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content') {
+                fullText += parsed.text;
+                setReview(fullText);
+              } else if (parsed.type === 'error') {
+                throw new Error(parsed.message || 'Review failed.');
+              }
+            } catch (parseErr) {
+              // Skip non-JSON lines
+            }
+          }
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+      setExtracting(false);
+    }
+  };
+
+  const reset = () => {
+    setFile(null);
+    setReview('');
+    setError('');
+    setLoading(false);
+    setExtracting(false);
+  };
+
+  return (
+    <div className="tool-calculator">
+      {!review ? (
+        <>
+          <div className="tool-calc__fields">
+            <div className="tool-calc__field">
+              <label className="tool-calc__label" htmlFor="pr-file">
+                Upload your policy document
+              </label>
+              <div className="policy-upload-zone">
+                <input
+                  id="pr-file"
+                  type="file"
+                  accept=".pdf,.docx"
+                  onChange={handleFileChange}
+                  className="policy-upload-input"
+                />
+                <div className="policy-upload-content">
+                  {file ? (
+                    <div className="policy-upload-selected">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M4 2h8l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                        <polyline points="12,2 12,6 16,6" />
+                      </svg>
+                      <span className="policy-upload-filename">{file.name}</span>
+                      <span className="policy-upload-size">({(file.size / 1024).toFixed(0)}KB)</span>
+                    </div>
+                  ) : (
+                    <div className="policy-upload-placeholder">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      <span>Drop a PDF or DOCX here, or click to browse</span>
+                      <span className="policy-upload-hint">Max 10MB</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="policy-context-toggle"
+              onClick={() => setShowContext(!showContext)}
+              type="button"
+            >
+              <span>{showContext ? 'Hide' : 'Add'} organisation context</span>
+              <span className="policy-context-optional">(optional - improves review accuracy)</span>
+              <svg
+                className={`tool-card__chevron ${showContext ? 'tool-card__chevron--open' : ''}`}
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <polyline points="6,8 10,12 14,8" />
+              </svg>
+            </button>
+
+            {showContext && (
+              <div className="policy-context-fields">
+                <div className="tool-calc__field">
+                  <label className="tool-calc__label" htmlFor="pr-org">Organisation type</label>
+                  <select
+                    id="pr-org"
+                    className="tool-calc__select"
+                    value={orgType}
+                    onChange={(e) => setOrgType(e.target.value)}
+                  >
+                    <option value="care-home">Care home (residential)</option>
+                    <option value="domiciliary">Domiciliary care</option>
+                    <option value="supported-living">Supported living</option>
+                    <option value="day-services">Day services</option>
+                    <option value="nursing-home">Nursing home</option>
+                    <option value="other-care">Other care provider</option>
+                    <option value="non-care-sme">Non-care SME</option>
+                  </select>
+                </div>
+                <div className="tool-calc__field">
+                  <label className="tool-calc__label" htmlFor="pr-staff">Approximate staff count</label>
+                  <input
+                    id="pr-staff"
+                    className="tool-calc__input"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={staffCount}
+                    onChange={(e) => setStaffCount(e.target.value)}
+                    placeholder="e.g. 25"
+                  />
+                </div>
+                <div className="tool-calc__field">
+                  <label className="tool-calc__label" htmlFor="pr-concerns">Any specific concerns about this policy?</label>
+                  <textarea
+                    id="pr-concerns"
+                    className="tool-calc__textarea"
+                    value={concerns}
+                    onChange={(e) => setConcerns(e.target.value)}
+                    placeholder="e.g. We had a tribunal claim recently and want to make sure this is up to date"
+                    rows={2}
+                  />
+                </div>
+                <div className="tool-calc__field">
+                  <label className="tool-calc__label" htmlFor="pr-agreed">Agreed ways of working that might differ from textbook?</label>
+                  <textarea
+                    id="pr-agreed"
+                    className="tool-calc__textarea"
+                    value={agreedWays}
+                    onChange={(e) => setAgreedWays(e.target.value)}
+                    placeholder="e.g. We use a combined disciplinary/capability process because we only have one manager"
+                    rows={2}
+                  />
+                  <p className="tool-calc__help">
+                    We will not automatically flag your agreed ways of working as non-compliant.
+                    If they are lawful and consistently applied, we will note them positively.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="tool-calc__band tool-calc__band--red">
+              <span className="tool-calc__band-label">{error}</span>
+            </div>
+          )}
+
+          <button
+            className="tool-calc__btn"
+            onClick={handleSubmit}
+            disabled={!file || loading}
+          >
+            {extracting ? 'Extracting text...' : loading ? 'Reviewing policy...' : 'Review Policy'}
+          </button>
+        </>
+      ) : (
+        <div className="policy-review-result" ref={reviewRef}>
+          <div className="policy-review-header">
+            <div className="policy-review-file-info">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M4 2h8l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2z" />
+              </svg>
+              <span>{file?.name}</span>
+            </div>
+            <button className="tool-calc__btn tool-calc__btn--secondary" onClick={reset}>
+              Review another policy
+            </button>
+          </div>
+          <div className="policy-review-content">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{review}</ReactMarkdown>
+          </div>
+          {loading && (
+            <div className="policy-review-streaming">
+              <div className="policy-review-dot-pulse" />
+              <span>Analysing...</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
 // TOOL CARD MAP
 // ============================================================
 
@@ -1483,6 +1803,7 @@ const TOOL_COMPONENTS: Record<ToolId, React.FC> = {
   'acas-deadlines': AcasDeadlineCalculator,
   'oncall-classifier': OnCallClassifier,
   'phased-return': PhasedReturnCalculator,
+  'policy-review': PolicyReviewTool,
 };
 
 // ============================================================

@@ -4981,6 +4981,200 @@ svg {
 }
 
 /* ============================================================
+   POLICY REVIEW TOOL
+   ============================================================ */
+
+.policy-upload-zone {
+  position: relative;
+  border: 2px dashed var(--mid-grey-border);
+  border-radius: 8px;
+  padding: 24px 20px;
+  text-align: center;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.policy-upload-zone:hover {
+  border-color: var(--blue-accent);
+  background: #F5F9FE;
+}
+.policy-upload-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.policy-upload-content {
+  pointer-events: none;
+}
+.policy-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.policy-upload-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.policy-upload-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--blue-accent);
+}
+.policy-upload-filename {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+}
+.policy-upload-size {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.policy-context-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--blue-accent);
+  cursor: pointer;
+}
+.policy-context-optional {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.policy-context-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--mid-grey-border);
+  border-radius: 8px;
+  background: #FAFBFC;
+}
+
+.tool-calc__textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--mid-grey-border);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--white);
+  outline: none;
+  resize: vertical;
+  min-height: 56px;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tool-calc__textarea:focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 3px rgba(45, 125, 210, 0.1);
+}
+
+.policy-review-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.policy-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--mid-grey-border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.policy-review-file-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.policy-review-content {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+.policy-review-content h1,
+.policy-review-content h2 {
+  font-family: var(--font-heading);
+  margin: 20px 0 8px;
+}
+.policy-review-content h1 { font-size: 20px; }
+.policy-review-content h2 { font-size: 16px; }
+.policy-review-content h3 { font-size: 14px; font-weight: 600; margin: 14px 0 6px; }
+.policy-review-content p { margin: 0 0 10px; }
+.policy-review-content ul,
+.policy-review-content ol { padding-left: 20px; margin: 4px 0 12px; }
+.policy-review-content li { margin-bottom: 4px; }
+.policy-review-content strong { font-weight: 600; color: var(--text-primary); }
+.policy-review-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.policy-review-content th,
+.policy-review-content td {
+  padding: 8px 10px;
+  border: 1px solid var(--mid-grey-border);
+  text-align: left;
+}
+.policy-review-content th {
+  background: var(--light-grey-bg);
+  font-weight: 600;
+}
+.policy-review-content hr {
+  border: none;
+  border-top: 1px solid var(--mid-grey-border);
+  margin: 16px 0;
+}
+
+.policy-review-streaming {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+.policy-review-dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue-accent);
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 640px) {
+  .policy-upload-zone { padding: 16px 14px; }
+  .policy-review-header { flex-direction: column; align-items: flex-start; }
+  .policy-context-toggle { flex-wrap: wrap; }
+}
+
+/* ============================================================
    ADMIN PANEL
    ============================================================ */
 

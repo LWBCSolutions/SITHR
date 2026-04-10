@@ -210,6 +210,21 @@ const chatLimiter = rateLimit({
 });
 app.use('/api/chat', chatLimiter);
 
+const policyReviewLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many policy reviews. Please try again in an hour.' },
+  standardHeaders: true,
+  keyGenerator: (req) => {
+    const auth = req.headers.authorization;
+    if (auth) return auth;
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string') return forwarded.split(',')[0].trim();
+    return req.ip || req.socket.remoteAddress || 'unknown';
+  },
+  validate: false,
+});
+
 // ---------------------------------------------------------------------------
 // Auth middleware - extracts user from JWT
 // ---------------------------------------------------------------------------
@@ -1116,6 +1131,89 @@ app.get('/api/notifications', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Notifications error:', err);
     res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Policy Review endpoint (streaming)
+// ---------------------------------------------------------------------------
+app.post('/api/policy-review', requireAuth, policyReviewLimiter, async (req: Request, res: Response) => {
+  try {
+    const { documentText, fileName, context } = req.body;
+
+    if (!documentText || typeof documentText !== 'string') {
+      res.status(400).json({ error: 'No document text provided.' });
+      return;
+    }
+
+    if (documentText.length > 100000) {
+      res.status(400).json({ error: 'Document too large. Maximum 100,000 characters.' });
+      return;
+    }
+
+    const policyReviewPrompt = fs.readFileSync(
+      path.join(__dirname, '../../system-prompt/policy-review-prompt.md'),
+      'utf-8'
+    );
+
+    const userMessage = `Please review the following HR policy document.
+
+DOCUMENT NAME: ${sanitiseInput(fileName || 'Unknown')}
+
+ORGANISATION CONTEXT:
+- Type: ${sanitiseInput(context?.orgType || 'Not specified')}
+- Staff count: ${sanitiseInput(context?.staffCount || 'Not specified')}
+- Specific concerns: ${sanitiseInput(context?.concerns || 'None specified')}
+- Agreed ways of working: ${sanitiseInput(context?.agreedWays || 'None specified')}
+
+DOCUMENT TEXT:
+---
+${documentText.slice(0, 80000)}
+---
+
+Please provide a complete Policy Review Report following the output structure in your instructions.`;
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    let fullResponse = '';
+
+    const stream = anthropic.messages.stream({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8000,
+      system: policyReviewPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    });
+
+    stream.on('text', (deltaText: string) => {
+      fullResponse += deltaText;
+      res.write(`data: ${JSON.stringify({ type: 'content', text: deltaText })}\n\n`);
+    });
+
+    stream.on('end', () => {
+      res.write(`data: ${JSON.stringify({ type: 'done', text: fullResponse })}\n\n`);
+      res.end();
+
+      auditLog('policy_review', { fileName, orgType: context?.orgType }, req.ip || '');
+    });
+
+    stream.on('error', (err: Error) => {
+      console.error('Policy review stream error:', err);
+      if (!res.writableEnded) {
+        res.write(`data: ${JSON.stringify({ type: 'error', message: 'Review failed.' })}\n\n`);
+        res.end();
+      }
+    });
+  } catch (error) {
+    console.error('Policy review error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Policy review failed.' });
+    } else if (!res.writableEnded) {
+      res.write(`data: ${JSON.stringify({ type: 'error', message: 'Review failed.' })}\n\n`);
+      res.end();
+    }
   }
 });
 
