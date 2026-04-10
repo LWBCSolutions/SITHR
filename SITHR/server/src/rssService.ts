@@ -272,10 +272,16 @@ export class RssService {
 
     for (const item of unprocessed) {
       try {
-        const draft = await this.generateArticle(item);
-        if (draft) {
+        const result = await this.generateArticle(item);
+        if (result) {
+          const { calendar_event, ...draft } = result;
           await this.supabase.from('article_drafts').insert(draft);
           draftsCreated++;
+
+          // Create calendar event if the AI identified a date-specific event
+          if (calendar_event && calendar_event.start_date) {
+            await this.createCalendarEvent(calendar_event, item.link);
+          }
         }
 
         // Mark as processed regardless of whether we created a draft
@@ -302,7 +308,7 @@ export class RssService {
   // -------------------------------------------------------------------------
   private async generateArticle(
     item: RssFeedItem
-  ): Promise<Omit<ArticleDraft, 'id' | 'created_at'> | null> {
+  ): Promise<(Omit<ArticleDraft, 'id' | 'created_at'> & { calendar_event?: any }) | null> {
     const prompt = `You are the content writer for SIT-HR Advisory, a UK employment law and HR advisory platform for SME employers.
 
 You have been given a news item from an RSS feed. Your task is to write a practical, actionable article for UK employers based on this news.
@@ -331,8 +337,23 @@ Respond in this exact JSON format:
   "title": "Article title (clear, practical, max 80 characters)",
   "category": "legislation|tribunal|policy|guidance|reminder",
   "summary": "1-2 sentence summary for the article list view",
-  "content": "Full markdown article content"
-}`;
+  "content": "Full markdown article content",
+  "calendar_event": null or {
+    "title": "Short event title for the calendar (max 60 characters)",
+    "description": "One paragraph explaining the event and its impact on employers",
+    "action_points": "What employers need to do, as a single paragraph",
+    "event_category": "legislation|awareness|economic|cultural",
+    "start_date": "YYYY-MM-DD",
+    "end_date": "YYYY-MM-DD or null if single day"
+  }
+}
+
+CALENDAR EVENT RULES:
+- Only include a calendar_event if the news item mentions a SPECIFIC DATE when something takes effect, begins, or is due
+- Examples that warrant a calendar event: a new law coming into force on a specific date, a consultation deadline, a rate change date, an awareness week with dates, a filing deadline
+- Examples that do NOT warrant a calendar event: general guidance updates, tribunal case reports, opinion pieces, policy recommendations with no fixed date
+- The start_date must be a real date mentioned in or derivable from the news item
+- If no specific date is mentioned or implied, set calendar_event to null`;
 
     try {
       const response = await this.anthropic.messages.create({
@@ -361,11 +382,68 @@ Respond in this exact JSON format:
         category: parsed.category || 'guidance',
         summary: parsed.summary,
         content: parsed.content,
-        status: 'draft',
+        status: 'draft' as const,
+        calendar_event: parsed.calendar_event || null,
       };
     } catch (err) {
       console.error('[RSS] Anthropic API error:', err);
       return null;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // 5b. Create calendar event from AI-extracted data
+  // -------------------------------------------------------------------------
+  private async createCalendarEvent(
+    event: {
+      title: string;
+      description: string;
+      action_points: string;
+      event_category: string;
+      start_date: string;
+      end_date: string | null;
+    },
+    sourceUrl: string
+  ): Promise<void> {
+    try {
+      // Validate the date format
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(event.start_date)) return;
+
+      // Check for duplicate by title and date
+      const { data: existing } = await this.supabase
+        .from('calendar_events')
+        .select('id')
+        .eq('title', event.title.substring(0, 200))
+        .eq('start_date', event.start_date)
+        .limit(1);
+
+      if (existing && existing.length > 0) return;
+
+      // Map AI category to calendar category
+      const validCategories = ['legislation', 'awareness', 'religious', 'cultural', 'economic', 'local'];
+      const category = validCategories.includes(event.event_category)
+        ? event.event_category
+        : 'awareness';
+
+      const { error } = await this.supabase.from('calendar_events').insert({
+        title: event.title.substring(0, 200),
+        description: event.description.substring(0, 2000),
+        action_points: event.action_points ? event.action_points.substring(0, 2000) : null,
+        category,
+        start_date: event.start_date,
+        end_date: event.end_date && /^\d{4}-\d{2}-\d{2}$/.test(event.end_date) ? event.end_date : null,
+        all_day: true,
+        source_url: sourceUrl || null,
+        pinned: false,
+      });
+
+      if (error) {
+        console.error('[RSS] Calendar event creation error:', error);
+      } else {
+        console.log(`[RSS] Created calendar event: ${event.title} on ${event.start_date}`);
+      }
+    } catch (err) {
+      console.error('[RSS] Failed to create calendar event:', err);
     }
   }
 
