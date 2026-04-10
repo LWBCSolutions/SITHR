@@ -4741,11 +4741,43 @@ svg {
   overflow-y: auto;
 }
 .admin-draft-content__body {
-  white-space: pre-wrap;
+  white-space: normal;
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--text-primary, #1C1C1E);
   font-family: 'DM Sans', sans-serif;
+}
+.admin-draft-content__body h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 14px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--mid-grey-border, #E0E0E0);
+}
+.admin-draft-content__body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 10px 0 4px;
+}
+.admin-draft-content__body p {
+  margin: 0 0 8px;
+}
+.admin-draft-content__body ul,
+.admin-draft-content__body ol {
+  padding-left: 18px;
+  margin: 4px 0 8px;
+}
+.admin-draft-content__body li {
+  margin-bottom: 3px;
+}
+.admin-draft-content__body blockquote {
+  margin: 8px 0;
+  padding: 8px 12px;
+}
+.admin-draft-content__body hr {
+  border: none;
+  border-top: 1px solid var(--mid-grey-border, #E0E0E0);
+  margin: 12px 0;
 }
 
 .admin-status-badge {
