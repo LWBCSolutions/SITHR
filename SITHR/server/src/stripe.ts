@@ -1,7 +1,8 @@
 import express from 'express';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { getPlanFromPriceId, getPlanLimits } from './planLimits';
+import { getPlanFromPriceId } from './planLimits';
+import { lookupReferral, describeReferral } from './referral';
 
 const router = express.Router();
 
@@ -70,12 +71,18 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         await supabase.from('subscriptions').upsert({
           user_id: userId,
           plan,
-          status: 'active',
+          status: subscription.status,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: session.subscription as string,
+          trial_start: subscription.trial_start
+            ? new Date(subscription.trial_start * 1000).toISOString()
+            : null,
+          trial_end: subscription.trial_end
+            ? new Date(subscription.trial_end * 1000).toISOString()
+            : null,
           current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
           current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          cancel_at_period_end: false,
+          cancel_at_period_end: subscription.cancel_at_period_end,
         }, { onConflict: 'user_id' });
         break;
       }
@@ -129,6 +136,36 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 // JSON body parsing for non-webhook routes
 const jsonParser = express.json();
 
+// ---------------------------------------------------------------------------
+// POST /validate-referral -- Validate a referral code without redeeming it
+// ---------------------------------------------------------------------------
+router.post('/validate-referral', jsonParser, async (req, res) => {
+  try {
+    const { code } = req.body as { code?: string };
+    if (!code || typeof code !== 'string') {
+      res.status(400).json({ valid: false, message: 'Code is required.' });
+      return;
+    }
+
+    const result = await lookupReferral(code);
+    if (!result.valid || !result.referral) {
+      res.json({ valid: false, message: result.message });
+      return;
+    }
+
+    res.json({
+      valid: true,
+      type: result.referral.type,
+      value: result.referral.value,
+      description: result.referral.description,
+      message: describeReferral(result.referral),
+    });
+  } catch (err) {
+    console.error('Validate referral error:', err);
+    res.status(500).json({ valid: false, message: 'Validation failed.' });
+  }
+});
+
 // POST /create-checkout -- Create a Stripe Checkout session
 // ---------------------------------------------------------------------------
 router.post('/create-checkout', jsonParser, async (req, res) => {
@@ -140,6 +177,7 @@ router.post('/create-checkout', jsonParser, async (req, res) => {
     }
 
     let { priceId } = req.body;
+    const { referralCode } = req.body as { referralCode?: string };
     if (!priceId) {
       res.status(400).json({ error: 'priceId is required' });
       return;
@@ -182,15 +220,72 @@ router.post('/create-checkout', jsonParser, async (req, res) => {
       customerId = customer.id;
     }
 
-    const session = await stripe.checkout.sessions.create({
+    let trialDays = parseInt(process.env.STRIPE_TRIAL_DAYS || '7', 10);
+    let stripeCouponId: string | undefined;
+
+    if (referralCode && typeof referralCode === 'string') {
+      const result = await lookupReferral(referralCode);
+      if (result.valid && result.referral) {
+        const referral = result.referral;
+
+        // free_access codes do not go through Stripe Checkout - reject here.
+        if (referral.type === 'free_access') {
+          res.status(400).json({
+            error: 'wrong_flow',
+            message: 'This code grants free access. Use the Activate Free Access button instead.',
+          });
+          return;
+        }
+
+        const adminClient = getAdminClient();
+
+        // Has this user already used this code?
+        const { data: existingUse } = await adminClient
+          .from('referral_code_uses')
+          .select('id')
+          .eq('code_id', referral.id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!existingUse) {
+          if (referral.type === 'extended_trial') {
+            trialDays += referral.value;
+          } else if (referral.stripe_coupon_id) {
+            stripeCouponId = referral.stripe_coupon_id;
+          }
+
+          await adminClient.from('referral_code_uses').insert({
+            code_id: referral.id,
+            user_id: user.id,
+          });
+          await adminClient
+            .from('referral_codes')
+            .update({ current_uses: referral.current_uses + 1 })
+            .eq('id', referral.id);
+        }
+      }
+    }
+
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       mode: 'subscription',
       currency: 'gbp',
       line_items: [{ price: priceId, quantity: 1 }],
+      subscription_data: {
+        trial_period_days: trialDays,
+        metadata: { user_id: user.id },
+      },
+      allow_promotion_codes: stripeCouponId ? false : true,
       success_url: 'https://sithr.lwbc.ltd/settings/billing?success=true',
       cancel_url: 'https://sithr.lwbc.ltd/settings/billing?cancelled=true',
       metadata: { user_id: user.id },
-    });
+    };
+
+    if (stripeCouponId) {
+      sessionConfig.discounts = [{ coupon: stripeCouponId }];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     res.json({ url: session.url });
   } catch (err) {
@@ -235,107 +330,8 @@ router.post('/customer-portal', jsonParser, async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// GET /subscription -- Get current subscription, usage, and profile
-// ---------------------------------------------------------------------------
-router.get('/subscription', async (req, res) => {
-  try {
-    const user = getUserFromReq(req);
-    if (!user) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-
-    const supabase = getAdminClient();
-
-    // Fetch subscription
-    const { data: subscription } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    // If no subscription exists, create a trial
-    let sub = subscription;
-    if (!sub) {
-      const trialDays = parseInt(process.env.STRIPE_TRIAL_DAYS || '7', 10);
-      const trialEnd = new Date();
-      trialEnd.setDate(trialEnd.getDate() + trialDays);
-
-      const { data: newSub } = await supabase
-        .from('subscriptions')
-        .upsert({
-          user_id: user.id,
-          plan: 'trial',
-          status: 'trialing',
-          trial_start: new Date().toISOString(),
-          trial_end: trialEnd.toISOString(),
-          current_period_start: new Date().toISOString(),
-          current_period_end: trialEnd.toISOString(),
-          cancel_at_period_end: false,
-        }, { onConflict: 'user_id' })
-        .select()
-        .single();
-
-      sub = newSub;
-    }
-
-    // Current period month for usage lookup
-    const now = new Date();
-    const periodMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-    // Fetch usage and profile in parallel
-    const [usageResult, profileResult] = await Promise.all([
-      supabase
-        .from('monthly_usage')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('period_month', periodMonth)
-        .single(),
-      supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single(),
-    ]);
-
-    const usage = usageResult.data || {
-      conversations_count: 0,
-      messages_count: 0,
-      exports_count: 0,
-    };
-    const profile = profileResult.data || null;
-
-    const plan = sub?.plan || 'trial';
-    const limits = getPlanLimits(plan);
-
-    // Calculate trial days remaining
-    let trialDaysRemaining = 7;
-    let isTrialExpired = false;
-    if (sub?.plan === 'trial') {
-      const endField = sub.trial_end || sub.current_period_end;
-      if (endField) {
-        const endDate = new Date(endField);
-        const msRemaining = endDate.getTime() - Date.now();
-        trialDaysRemaining = Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
-        isTrialExpired = msRemaining <= 0;
-      }
-    }
-
-    res.json({
-      subscription: sub,
-      plan,
-      limits,
-      usage,
-      profile,
-      isTrialExpired,
-      trialDaysRemaining,
-    });
-  } catch (err) {
-    console.error('Get subscription error:', err);
-    res.status(500).json({ error: 'Failed to fetch subscription' });
-  }
-});
-
+// (Removed: a duplicate /subscription handler used to live here with stale
+// column names. The active /api/subscription endpoint is in index.ts.)
 // ---------------------------------------------------------------------------
 // POST /trial/register-ip -- Record trial IP address
 // ---------------------------------------------------------------------------
@@ -397,7 +393,7 @@ router.put('/profile', jsonParser, async (req, res) => {
     const supabase = getAdminClient();
 
     const updateData: Record<string, unknown> = {
-      id: user.id,
+      user_id: user.id,
       display_name: display_name || null,
       organisation_name: organisation_name || null,
       job_title: job_title || null,
@@ -409,7 +405,7 @@ router.put('/profile', jsonParser, async (req, res) => {
 
     const { data, error } = await supabase
       .from('user_profiles')
-      .upsert(updateData, { onConflict: 'id' })
+      .upsert(updateData, { onConflict: 'user_id' })
       .select()
       .single();
 
@@ -458,7 +454,7 @@ router.delete('/account', jsonParser, async (req, res) => {
     await supabase.from('conversations').delete().eq('user_id', user.id);
     await supabase.from('subscriptions').delete().eq('user_id', user.id);
     await supabase.from('monthly_usage').delete().eq('user_id', user.id);
-    await supabase.from('user_profiles').delete().eq('id', user.id);
+    await supabase.from('user_profiles').delete().eq('user_id', user.id);
 
     // Note: deleting from auth.users would require a service role key
 
