@@ -1,19 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
+import { lazy, Suspense } from 'react';
 import LoginPage from './components/LoginPage';
 import ChatLayout from './components/ChatLayout';
 import DisclaimerModal from './components/DisclaimerModal';
-import LegalPage from './components/LegalPage';
-import NewsList from './components/NewsList';
-import NewsArticle from './components/NewsArticle';
-import SettingsPage from './components/SettingsPage';
-import DocumentLibrary from './components/DocumentLibrary';
-import ToolsPage from './components/ToolsPage';
-import CalendarPage from './components/CalendarPage';
-import AdminPanel from './components/AdminPanel';
-import { SubscriptionProvider } from './context/SubscriptionContext';
+
+const LegalPage = lazy(() => import('./components/LegalPage'));
+const NewsList = lazy(() => import('./components/NewsList'));
+const NewsArticle = lazy(() => import('./components/NewsArticle'));
+const SettingsPage = lazy(() => import('./components/SettingsPage'));
+const DocumentLibrary = lazy(() => import('./components/DocumentLibrary'));
+const ToolsPage = lazy(() => import('./components/ToolsPage'));
+const CalendarPage = lazy(() => import('./components/CalendarPage'));
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
+import { SubscriptionProvider, useSubscription } from './context/SubscriptionContext';
+const PlanSelectionPage = lazy(() => import('./components/PlanSelectionPage'));
+
+function PlanGate({ children }: { children: ReactNode }) {
+  const { requiresPlanSelection, loading, refreshSubscription } = useSubscription();
+  if (loading) {
+    return <div className="loading-screen"><div className="loading-spinner" /></div>;
+  }
+  if (requiresPlanSelection) {
+    return <PlanSelectionPage onActivated={refreshSubscription} />;
+  }
+  return <>{children}</>;
+}
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,7 +54,8 @@ export default function App() {
   }
 
   return (
-    <Routes>
+    <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /></div>}>
+          <Routes>
       <Route path="/privacy" element={<LegalPage page="privacy" />} />
       <Route path="/terms" element={<LegalPage page="terms" />} />
       <Route path="/acceptable-use" element={<LegalPage page="acceptable-use" />} />
@@ -52,26 +67,33 @@ export default function App() {
       <Route path="/admin" element={
         !user ? <LoginPage /> : (
           <SubscriptionProvider>
-            <AdminPanel />
+            <PlanGate>
+              <AdminPanel />
+            </PlanGate>
           </SubscriptionProvider>
         )
       } />
       <Route path="/settings/*" element={
         !user ? <LoginPage /> : (
           <SubscriptionProvider>
-            <SettingsPage />
+            <PlanGate>
+              <SettingsPage />
+            </PlanGate>
           </SubscriptionProvider>
         )
       } />
       <Route path="*" element={
         !user ? <LoginPage /> : (
           <SubscriptionProvider>
-            <DisclaimerModal>
-              <ChatLayout user={user} onSignOut={handleSignOut} />
-            </DisclaimerModal>
+            <PlanGate>
+              <DisclaimerModal>
+                <ChatLayout user={user} onSignOut={handleSignOut} />
+              </DisclaimerModal>
+            </PlanGate>
           </SubscriptionProvider>
         )
       } />
     </Routes>
+          </Suspense>
   );
 }

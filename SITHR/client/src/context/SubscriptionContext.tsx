@@ -40,6 +40,7 @@ interface SubscriptionContextType {
   profile: Profile | null;
   isTrialExpired: boolean;
   trialDaysRemaining: number;
+  requiresPlanSelection: boolean;
   loading: boolean;
   refreshSubscription: () => Promise<void>;
 }
@@ -62,6 +63,7 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   profile: null,
   isTrialExpired: false,
   trialDaysRemaining: 7,
+  requiresPlanSelection: false,
   loading: true,
   refreshSubscription: async () => {},
 });
@@ -79,6 +81,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     profile: null,
     isTrialExpired: false,
     trialDaysRemaining: 7,
+    requiresPlanSelection: false,
   });
   const [loading, setLoading] = useState(true);
 
@@ -96,6 +99,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         profile: data.profile,
         isTrialExpired: data.isTrialExpired || false,
         trialDaysRemaining: data.trialDaysRemaining ?? 7,
+        requiresPlanSelection: data.requiresPlanSelection || false,
       });
     } catch {
       // Silent fail - defaults apply

@@ -372,6 +372,15 @@ export default function SettingsPage() {
             <button className="settings-btn" onClick={handlePasswordChange} disabled={passwordSaving || !newPassword}>
               {passwordSaving ? 'Updating...' : 'Update Password'}
             </button>
+
+            <div className="settings-info-card" style={{ marginTop: 32 }}>
+              <h3 className="settings-section__subtitle">Data Retention</h3>
+              <p>
+                Conversations are automatically and permanently deleted 30 days after creation.
+                This cannot be reversed. Use Export Pack to save a permanent copy of any
+                conversation you need to keep.
+              </p>
+            </div>
           </div>
         )}
 

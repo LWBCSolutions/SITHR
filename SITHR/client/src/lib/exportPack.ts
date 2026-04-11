@@ -12,6 +12,7 @@ import {
   HeadingLevel,
 } from 'docx';
 import { saveAs } from 'file-saver';
+import { LimitError, type LimitName } from './api';
 
 import type { Message } from './api';
 import { getAuthHeaders } from './api';
@@ -1289,6 +1290,12 @@ export async function generateExportPack(
     }),
   });
 
+  if (response.status === 403) {
+    const body = await response.json().catch(() => null);
+    if (body?.error === 'limit_reached') {
+      throw new LimitError(body.limit as LimitName, body.message || 'Limit reached.');
+    }
+  }
   if (!response.ok) {
     throw new Error(`Failed to analyze conversation: ${response.status}`);
   }

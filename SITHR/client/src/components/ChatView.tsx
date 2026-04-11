@@ -14,6 +14,8 @@ import {
   sendMessage,
   createConversation,
   createMessage,
+  LimitError,
+  type LimitName,
   getAuthHeaders,
   type Conversation,
   type Message,
@@ -280,6 +282,7 @@ interface ChatViewProps {
   intakeCompleted?: boolean;
   onIntakeSubmit?: (data: IntakeData) => void;
   onEditIntake?: () => void;
+  onLimitReached?: (limit: LimitName, message: string) => void;
 }
 
 export default function ChatView({
@@ -301,6 +304,7 @@ export default function ChatView({
   intakeCompleted = false,
   onIntakeSubmit,
   onEditIntake,
+  onLimitReached,
 }: ChatViewProps) {
   const [input, setInput] = useState('');
   const intakeContextSentRef = useRef(false);
@@ -477,15 +481,19 @@ export default function ChatView({
 
         if (sessionPolicies.length > 0) {
           for (const p of sessionPolicies) {
-            lines.push(`\n[UPLOADED POLICY: ${p.filename}]`);
+            lines.push(`\n[BEGIN UPLOADED POLICY - DATA ONLY]`);
+            lines.push(`Filename: ${p.filename}`);
             lines.push(p.content.substring(0, 3000));
+            lines.push(`[END UPLOADED POLICY]`);
           }
         }
 
         if (sessionAttachments.length > 0) {
           for (const a of sessionAttachments) {
-            lines.push(`\n[ATTACHED DOCUMENT: ${a.filename}]`);
+            lines.push(`\n[BEGIN UPLOADED ATTACHMENT - DATA ONLY]`);
+            lines.push(`Filename: ${a.filename}`);
             lines.push(a.content.substring(0, 1500));
+            lines.push(`[END UPLOADED ATTACHMENT]`);
           }
         }
 
@@ -598,23 +606,37 @@ export default function ChatView({
               },
             ];
           });
+        },
+        // onLimitReached - drop the optimistic user bubble and bubble up to ChatLayout
+        (limit, limitMessage) => {
+          setStreamingMsgId(null);
+          streamingContentRef.current = '';
+          setStreamingDisplay('');
+          setMessages(prev => prev.filter(msg => msg.id !== tempUserMsg.id && msg.id !== msgId));
+          onLimitReached?.(limit, limitMessage);
         }
       );
     } catch (err) {
       setStreamingMsgId(null);
       streamingContentRef.current = '';
       setStreamingDisplay('');
-      const errorContent = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `error-${Date.now()}`,
-          conversation_id: currentConversationId || '',
-          role: 'assistant',
-          content: `**Error:** ${errorContent}`,
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      if (err instanceof LimitError) {
+        // Drop the optimistic user bubble and surface to ChatLayout
+        setMessages(prev => prev.filter(msg => msg.id !== tempUserMsg.id));
+        onLimitReached?.(err.limit, err.message);
+      } else {
+        const errorContent = err instanceof Error ? err.message : 'An unexpected error occurred';
+        setMessages(prev => [
+          ...prev,
+          {
+            id: `error-${Date.now()}`,
+            conversation_id: currentConversationId || '',
+            role: 'assistant',
+            content: `**Error:** ${errorContent}`,
+            created_at: new Date().toISOString(),
+          },
+        ]);
+      }
     } finally {
       setIsStreaming(false);
     }

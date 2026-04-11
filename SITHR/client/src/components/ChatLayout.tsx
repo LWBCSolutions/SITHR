@@ -8,18 +8,44 @@ import {
   deleteConversation,
   type Conversation,
   type Message,
+  type LimitName,
 } from '../lib/api';
 import ChatView from './ChatView';
 import ExportPack from './ExportPack';
 import type { IntakeData } from './IntakeForm';
 import AppNotifications, { BannerNotification, useActiveNotifications } from './AppNotifications';
+import { useSubscription } from '../context/SubscriptionContext';
+import UpgradeModal from './UpgradeModal';
+
+const LIMIT_REASON_MAP: Record<LimitName, 'conversation_limit' | 'message_limit' | 'export_limit'> = {
+  conversations: 'conversation_limit',
+  messages_per_conversation: 'message_limit',
+  exports: 'export_limit',
+};
+
+const PLAN_BADGE_LABELS: Record<string, string> = {
+  trial: 'Trial',
+  starter: 'Starter',
+  professional: 'Professional',
+  organisation: 'Organisation',
+};
 
 interface ChatLayoutProps {
   user: User;
   onSignOut: () => void;
 }
 
+function getRetentionBadge(expiresAt?: string): { text: string; className: string } | null {
+  if (!expiresAt) return null;
+  const days = Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86400000);
+  if (days > 7) return null;
+  if (days <= 0) return { text: 'Expiring today', className: 'retention-badge--critical' };
+  if (days <= 3) return { text: `${days}d left`, className: 'retention-badge--danger' };
+  return { text: `${days}d left`, className: 'retention-badge--warning' };
+}
+
 export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
+  const { plan, usage, limits, subscription, trialDaysRemaining, refreshSubscription } = useSubscription();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -28,6 +54,41 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
   const [caseRef, setCaseRef] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [selectedDocsCount, setSelectedDocsCount] = useState(0);
+  const [upgradeReason, setUpgradeReason] = useState<'conversation_limit' | 'message_limit' | 'export_limit' | null>(null);
+  const [trialBannerDismissed, setTrialBannerDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('trial-banner-dismissed') === '1';
+  });
+
+  const handleLimitReached = (limit: LimitName) => {
+    setUpgradeReason(LIMIT_REASON_MAP[limit]);
+    refreshSubscription();
+  };
+
+  const dismissTrialBanner = () => {
+    setTrialBannerDismissed(true);
+    sessionStorage.setItem('trial-banner-dismissed', '1');
+  };
+
+  const showTrialBanner =
+    !trialBannerDismissed &&
+    subscription?.status === 'trialing' &&
+    trialDaysRemaining > 0;
+
+  const isDiscaTrial = subscription?.status === 'disca_trial';
+  // Friendly nudge appears in the final week. Non-dismissible by design - it's
+  // the only signal these users get before access ends.
+  const showDiscaNudge = isDiscaTrial && trialDaysRemaining > 0 && trialDaysRemaining <= 7;
+
+  const planLabel = isDiscaTrial
+    ? `DISCA Access · ${trialDaysRemaining}d`
+    : (PLAN_BADGE_LABELS[plan] || plan);
+  const conversationLimitFinite = Number.isFinite(limits.conversations);
+  const conversationsUsed = usage.conversations_started || 0;
+  const conversationPct = conversationLimitFinite
+    ? Math.min(100, Math.round((conversationsUsed / limits.conversations) * 100))
+    : 0;
+  const showSidebarUsage = conversationLimitFinite && limits.conversations > 0;
   const [intakeCompleted, setIntakeCompleted] = useState(false);
   const { banners, dismiss: dismissBanner, hasUnread: hasUnreadNotifications } = useActiveNotifications();
   const [sessionPolicies, setSessionPolicies] = useState<Array<{ filename: string; content: string }>>([]);
@@ -188,10 +249,14 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
                   const match = conv.title.match(/^\[([^\]]+)\]\s*/);
                   const ref = match ? match[1] : null;
                   const displayTitle = match ? conv.title.slice(match[0].length) : conv.title;
+                  const retention = getRetentionBadge(conv.expires_at);
                   return (
                     <>
                       {ref && <span className="case-ref-badge">{ref}</span>}
                       <span className="conversation-title">{displayTitle}</span>
+                      {retention && (
+                        <span className={`retention-badge ${retention.className}`}>{retention.text}</span>
+                      )}
                     </>
                   );
                 })()}
@@ -278,6 +343,27 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
         </div>
 
         <div className="sidebar-footer">
+          {plan && plan !== 'none' && (
+            <div className="sidebar-plan-meta">
+              <span className={`plan-badge plan-badge--${plan}`}>{planLabel}</span>
+              {showSidebarUsage && (
+                <div className="sidebar-usage">
+                  <div className="sidebar-usage__label">
+                    {conversationsUsed}/{limits.conversations} conversations
+                  </div>
+                  <div className="sidebar-usage__bar">
+                    <div
+                      className="sidebar-usage__fill"
+                      style={{
+                        width: `${conversationPct}%`,
+                        background: conversationPct >= 100 ? '#A32D2D' : conversationPct >= 80 ? '#854F0B' : '#2D7DD2',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <div className="sidebar-legal-links">
             <a href="/privacy" target="_blank" rel="noopener">Privacy</a>
             <a href="/terms" target="_blank" rel="noopener">Terms</a>
@@ -320,6 +406,10 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
           <span className="chat-topbar-title">
             {activeConversation?.title || 'New Conversation'}
           </span>
+          {(() => {
+            const r = getRetentionBadge(activeConversation?.expires_at);
+            return r ? <span className={`retention-badge ${r.className}`}>{r.text}</span> : null;
+          })()}
           {activeConversationId && messages.length > 0 && (
             <ExportPack
               messages={messages}
@@ -327,6 +417,7 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
               caseRef={caseRef}
               disabled={isStreaming}
               packCount={selectedDocsCount}
+              onLimitReached={handleLimitReached}
             />
           )}
         </div>
@@ -337,6 +428,10 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
           <span className="chat-header-title">
             {activeConversation?.title || 'New Conversation'}
           </span>
+          {(() => {
+            const r = getRetentionBadge(activeConversation?.expires_at);
+            return r ? <span className={`retention-badge ${r.className}`}>{r.text}</span> : null;
+          })()}
           {activeConversationId && messages.length > 0 && (
             <ExportPack
               messages={messages}
@@ -344,6 +439,7 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
               caseRef={caseRef}
               disabled={isStreaming}
               packCount={selectedDocsCount}
+              onLimitReached={handleLimitReached}
             />
           )}
         </div>
@@ -374,12 +470,43 @@ export default function ChatLayout({ user, onSignOut }: ChatLayoutProps) {
           intakeCompleted={intakeCompleted}
           onIntakeSubmit={handleIntakeSubmit}
           onEditIntake={handleEditIntake}
+          onLimitReached={handleLimitReached}
         />
 
       </motion.main>
 
+      {showTrialBanner && (
+        <div className="trial-banner">
+          <span>
+            {trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''} left on your free trial.
+          </span>
+          <a href="/settings/billing" className="trial-banner__cta">Choose plan</a>
+          <button
+            className="trial-banner__dismiss"
+            onClick={dismissTrialBanner}
+            aria-label="Dismiss"
+          >
+            &times;
+          </button>
+        </div>
+      )}
+
+      {showDiscaNudge && (
+        <div className="disca-nudge">
+          <span>
+            Your free access ends in {trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''}.
+            Subscribe to keep everything you've built here.
+          </span>
+          <a href="/settings/billing" className="disca-nudge__cta">View Plans</a>
+        </div>
+      )}
+
       {/* Modal notifications */}
       <AppNotifications />
+
+      {upgradeReason && (
+        <UpgradeModal reason={upgradeReason} onClose={() => setUpgradeReason(null)} />
+      )}
     </div>
   );
 }

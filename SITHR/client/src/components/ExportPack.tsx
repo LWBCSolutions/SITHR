@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { generateExportPack } from '../lib/exportPack';
-import type { Message } from '../lib/api';
+import { LimitError, type Message, type LimitName } from './../lib/api';
 
 interface ExportPackProps {
   messages: Message[];
@@ -9,6 +9,7 @@ interface ExportPackProps {
   caseRef: string;
   disabled: boolean;
   packCount?: number;
+  onLimitReached?: (limit: LimitName, message: string) => void;
 }
 
 export default function ExportPack({
@@ -17,6 +18,7 @@ export default function ExportPack({
   caseRef,
   disabled,
   packCount = 0,
+  onLimitReached,
 }: ExportPackProps) {
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState('');
@@ -48,9 +50,14 @@ export default function ExportPack({
       await generateExportPack(messages, conversationTitle, caseRef, setProgress);
       setProgress('');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Export failed';
-      setError(msg);
-      setProgress('');
+      if (err instanceof LimitError) {
+        setProgress('');
+        onLimitReached?.(err.limit, err.message);
+      } else {
+        const msg = err instanceof Error ? err.message : 'Export failed';
+        setError(msg);
+        setProgress('');
+      }
     } finally {
       setExporting(false);
     }

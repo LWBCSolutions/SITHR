@@ -143,13 +143,19 @@ export default function LoginPage() {
 
         <div className="login-toggle">
           {isSignUp ? (
-            <button className="link-btn" onClick={toggleMode}>
-              Back to sign in
-            </button>
+            <span>
+              Already have an account?{' '}
+              <button className="link-btn" onClick={toggleMode}>
+                Sign in here
+              </button>
+            </span>
           ) : (
-            <button className="link-btn" onClick={toggleMode}>
-              Create account
-            </button>
+            <span>
+              Don't have an account?{' '}
+              <button className="link-btn" onClick={toggleMode}>
+                Sign up here
+              </button>
+            </span>
           )}
         </div>
 

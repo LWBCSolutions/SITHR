@@ -6,6 +6,7 @@ export interface Conversation {
   title: string;
   created_at: string;
   updated_at: string;
+  expires_at?: string;
 }
 
 export interface Message {
@@ -14,6 +15,17 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   created_at: string;
+}
+
+export type LimitName = 'conversations' | 'messages_per_conversation' | 'exports';
+
+export class LimitError extends Error {
+  limit: LimitName;
+  constructor(limit: LimitName, message: string) {
+    super(message);
+    this.name = 'LimitError';
+    this.limit = limit;
+  }
 }
 
 export async function getAuthHeaders(): Promise<Record<string, string>> {
@@ -30,7 +42,8 @@ export async function sendMessage(
   conversationHistory: Message[],
   onChunk: (text: string) => void,
   onDone: (fullText: string) => void,
-  onError: (error: string) => void
+  onError: (error: string) => void,
+  onLimitReached?: (limit: LimitName, message: string) => void
 ): Promise<void> {
   try {
     const headers = await getAuthHeaders();
@@ -45,6 +58,18 @@ export async function sendMessage(
         })),
       }),
     });
+
+    if (response.status === 403) {
+      try {
+        const body = await response.json();
+        if (body.error === 'limit_reached' && onLimitReached) {
+          onLimitReached(body.limit as LimitName, body.message || 'Limit reached.');
+          return;
+        }
+      } catch {
+        // Fall through to generic error
+      }
+    }
 
     if (!response.ok) {
       onError(`Server error: ${response.status}`);
@@ -105,6 +130,16 @@ export async function createConversation(
     headers,
     body: JSON.stringify({ user_id: userId, title }),
   });
+  if (response.status === 403) {
+    try {
+      const body = await response.json();
+      if (body.error === 'limit_reached') {
+        throw new LimitError(body.limit as LimitName, body.message || 'Limit reached.');
+      }
+    } catch (e) {
+      if (e instanceof LimitError) throw e;
+    }
+  }
   if (!response.ok) throw new Error(`Failed to create conversation: ${response.status}`);
   return response.json();
 }
